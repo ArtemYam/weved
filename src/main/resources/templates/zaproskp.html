@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Запрос КП</title>
+        <link rel="stylesheet" href="/css/styles.css" />
+        <script src="/js/script.js"></script>
+    </head>
+
+    <body>
+        <div class="name-pages-zaproskp">
+            <div>
+                <h3 class="section-title">Запрос КП</h3>
+            </div>
+            <form class="main-form">
+                <!-- Блок "Информация" -->
+                <div class="section-card">
+                    <h3 class="section-title">Информация</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="number">Номер</label>
+                            <input type="text" id="number" class="input-readonly" readonly />
+                        </div>
+                        <div class="form-group">
+                            <label for="date">Дата</label>
+                            <input type="text" id="date" class="input-readonly" readonly />
+                        </div>
+                        <div class="form-group">
+                            <label for="status">Статус</label>
+                            <select id="status" class="select-input">
+                                <option value="created">Создана</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="manager">Менеджер</label>
+                            <select id="manager" class="select-input"></select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Блок "Контракт" -->
+                <div class="section-card">
+                    <h3 class="section-title">Контракт</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="trademark-contract">Торговая марка</label>
+                            <select id="trademark-contract" class="select-input"></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="contractType">Тип контракта</label>
+                            <select id="contractType" class="select-input">
+                                <option value="direct">Прямой</option>
+                                <option value="teo">ТЭО</option>
+                                <option value="complex">Комплекс</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="currency">Валюта контракта</label>
+                            <input type="text" id="currency" class="input-text" />
+                        </div>
+                        <div class="form-group">
+                            <label for="contactName">Имя контакта</label>
+                            <input type="text" id="contactName" class="input-text" />
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" class="input-text" />
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Телефон</label>
+                            <input type="tel" id="phone" class="input-text" />
+                        </div>
+                    </div>
+                </div>
+                <!-- Блок "НАШ Контракт" -->
+                <div class="section-card">
+                    <h3 class="section-title">Информация по нашему контракту</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="trademark">Торговая марка</label>
+                            <select id="trademark" class="select-input"></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="contractType-info-contract">Тип контракта</label>
+                            <select id="contractType-info-contract" class="select-input">
+                                <option value="direct">Прямой</option>
+                                <option value="teo">ТЭО</option>
+                                <option value="complex">Комплекс</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="currency">Валюта контракта</label>
+                            <input type="text" id="currency-info-contract" class="input-text" />
+                        </div>
+                        <div class="form-group">
+                            <label for="contactName">Имя контакта</label>
+                            <input type="text" id="contactName-info-contract" class="input-text" />
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email-info-contract" class="input-text" />
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Телефон</label>
+                            <input type="tel" id="phone-info-contract" class="input-text" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Блок с грузоотправителем -->
+                <div class="section-card">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="shipper">Грузоотправитель</label>
+                            <input type="text" id="shipper" class="input-text" />
+                        </div>
+                        <div class="form-group">
+                            <label for="actualShipper">Фактический грузоотправитель</label>
+                            <input type="text" id="actualShipper" class="input-text" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Блок "Логистика" -->
+                <div class="section-card">
+                    <h3 class="section-title">Логистика</h3>
+                    <h3 class="field-label">Адрес</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="shippingRate">Адрес погрузки</label>
+                            <input type="number" id="shippingRate" class="input-text" />
+                        </div>
+                        <div class="form-group">
+                            <label for="shippingRate">Адрес выгрузки</label>
+                            <input type="number" id="shippingRate" class="input-text" />
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="field-label">Информация по грузу</h3>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="cargoSize">Размер груза:</label>
+                            <input type="number" id="cargoSize" class="input-text" />
+                        </div>
+                        <div class="form-group">
+                            <label for="volumeM3">Объём м3:</label>
+                            <input type="number" id="volumeM3" class="input-text" />
+                        </div>
+                        <div class="form-group">
+                            <label for="netWeight">Вес Нетто:</label>
+                            <input type="number" id="netWeight" class="input-text" />
+                        </div>
+                        <div class="form-group">
+                            <label for="grossWeight">Вес Брутто:</label>
+                            <input type="number" id="grossWeight" class="input-text" />
+                        </div>
+                        <div class="form-group">
+                            <label for="packagingType">Тип упаковки</label>
+                            <input type="text" id="packagingType" class="input-text" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="transportType">Тип транспорта</label>
+                            <select id="transportType" class="select-input">
+                                <option value="auto">Авто</option>
+                                <option value="air">Авиа</option>
+                                <option value="rail">ЖД</option>
+                                <option value="sea">Море</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="shippingRate">Условия ИНКОТЕРМС</label>
+                            <input type="number" id="shippingRate" class="input-text" />
+                        </div>
+                        <div class="form-group">
+                            <label for="deliveryTerms">Контракт</label>
+                            <input type="text" id="deliveryTerms" class="input-text" />
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="field-label">Особые условия</h3>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="shippingRate">Класс опасности:</label>
+                            <input type="number" id="shippingRate" class="input-text" />
+                        </div>
+                        <div class="form-group">
+                            <label for="shippingRate">Температурный режим</label>
+                            <input type="number" id="shippingRate" class="input-text" />
+                        </div>
+                        <div class="form-group">
+                            <label for="shippingRate">Элементы питания</label>
+                            <input type="number" id="shippingRate" class="input-text" />
+                        </div>
+                        <div class="form-group">
+                            <label for="shippingRate">Страхование</label>
+                            <select id="shippingRate" class="select-input">
+                                <option value="auto">да</option>
+                                <option value="air">нет</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="field-label">Стоимость перевозки</h3>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="shippingRate">Ставка для клиента</label>
+                            <input type="number" id="shippingRate" class="input-text" readonly />
+                        </div>
+                        <div class="form-group">
+                            <label for="shippingCurrency">Валюта перевозки</label>
+                            <input type="text" id="shippingCurrency" class="input-text" readonly />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Блок таблицы -->
+                <div class="section-card">
+                    <h3 class="section-title">Товары</h3>
+                    <div class="table-container">
+                        <table id="itemsTable" class="items-table">
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox" id="selectAll" class="row-checkbox" /></th>
+                                    <th>Артикул</th>
+                                    <th>Код ТНВЭД</th>
+                                    <th>Наименование как в инвойсе</th>
+                                    <th>Наименование на русском</th>
+                                    <th>Вес</th>
+                                    <th>Количество общее</th>
+                                    <th>Единица измерения</th>
+                                    <th>НДС</th>
+                                    <th>Пошлина</th>
+                                    <th>Стоимость за шт</th>
+                                    <th>Стоимость Итого</th>
+                                </tr>
+                            </thead>
+                            <tbody id="itemsTbody">
+                                <!-- Строки будут добавляться динамически -->
+                        </table>
+                    </div>
+                    <button type="button" id="addRowBtn">Добавить строку</button>
+                    <button type="button" id="deleteRowBtn">Удалить строку</button>
+                    <button type="button" id="loadFromFileBtn">Загрузить из файла</button>
+                    <button type="button" id="saveBtn">Сохранить</button>
+                </div>
+
+                <!-- Блок таблицы Комментарии -->
+                <div class="comments-section">
+                    <h3 class="section-title">Комментарии</h3>
+                    <div class="comments-column">
+                        <table class="vertical-table">
+                            <tr>
+                                <td class="field-label">Логистика</td>
+                            </tr>
+                            <tr>
+                                <td><textarea class="comment-input"></textarea></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="comments-column">
+                        <table class="vertical-table">
+                            <tr>
+                                <td class="field-label">Таможенный отдел</td>
+                            </tr>
+                            <tr>
+                                <td><textarea class="comment-input"></textarea></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="comments-column">
+                        <table class="vertical-table">
+                            <tr>
+                                <td class="field-label">Клиент</td>
+                            </tr>
+                            <tr>
+                                <td><textarea class="comment-input" readonly></textarea></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <button class="save-btn">Сохранить</button>
+                </div>
+
+                <!-- Блок таблицы История -->
+                <div class="section-card">
+                    <h3 class="section-title">История изменений</h3>
+                    <div class="table-container">
+                        <table id="itemsTable" class="items-table">
+                            <thead>
+                                <tr>
+                                    <th>Статус</th>
+                                    <th>Дата</th>
+                                    <th>Сотрудник</th>
+                                    <th>Отдел</th>
+                                    <th>Действие</th>
+                                </tr>
+                            </thead>
+                            <tbody id="itemsTbody">
+                                <!-- Строки будут добавляться динамически -->
+                                <!-- Шаблон строки таблицы -->
+                                <tr class="item-row">
+                                    <td><input type="text" class="input-readonly" readonly /></td>
+                                    <td><input type="text" class="input-readonly" readonly /></td>
+                                    <td><input type="text" class="input-readonly" readonly /></td>
+                                    <td><input type="text" class="input-readonly" readonly /></td>
+                                    <td><input type="text" class="input-readonly" readonly /></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Подвал страницы -->
+                <div class="section-card">
+                    <div class="form-row" style="justify-content: center; gap: 20px">
+                        <button type="button" class="btn-action">Сохранить</button>
+                        <button type="button" class="btn-action">Отправить</button>
+                        <button type="button" class="btn-action">Создать заявку</button>
+                        <button type="button" class="btn-action">Сформировать КП</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </body>
+</html>

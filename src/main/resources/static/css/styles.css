@@ -1,0 +1,757 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+    color: #ffffff;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+    padding: 20px;
+}
+
+.main-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+label {
+    font-size: 9px;
+    font-weight: 500;
+    opacity: 0.9;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.input-readonly,
+.select-input,
+.input-text {
+    padding: 5px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+.input-readonly {
+    cursor: default;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.select-input,
+.input-text {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+
+
+.select-input option {
+    background-color: rgba(255, 255, 255, 0.2); /* Полупрозрачный белый */
+    color: #000000; /* Белый текст */
+    padding: 8px;
+}
+
+/* Для выбранного пункта (если поддерживается) */
+.select-input option:checked {
+    background-color: rgba(0, 144, 255, 0.4);
+    color: #ffffff;
+}
+
+
+.input-text:focus,
+.select-input:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 0 0 2px rgba(100, 200, 255, 0.4);
+}
+
+.select-input {
+    appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill="white" d="M7 10l5 5 5-5z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    
+}
+
+/* Объёмные эффекты для элементов */
+.input-readonly,
+.select-input,
+.input-text {
+    box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.2),
+        inset 0 -1px 1px rgba(0, 0, 0, 0.1);
+}
+
+/* Стили для таблицы */
+.items-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.2),
+        inset 0 1px 2px rgba(255, 255, 255, 0.1);
+}
+
+.items-table thead th {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 12px 8px;
+    text-align: center;
+    font-size: 8px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.items-table thead th:first-child {
+    border-top-left-radius: 12px;
+}
+
+.items-table thead th:last-child {
+    border-top-right-radius: 12px;
+}
+
+.items-table tbody tr {
+    transition: all 0.3s ease;
+}
+
+.items-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: scale(1.01) translateZ(2px);
+    z-index: 1;
+    position: relative;
+}
+
+.items-table td {
+    padding: 10px 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    text-align: left;
+    white-space: normal;
+    overflow: hidden;
+}
+
+.items-table input {
+    width: 100%;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    font-size: 10px;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.items-table input:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 0 0 2px rgba(100, 200, 255, 0.4);
+    z-index: 2;
+    position: relative;
+}
+
+/* Чекбоксы в таблице */
+.row-checkbox,
+#selectAll {
+    accent-color: #00a8ff;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+/* Кнопка добавления строки */
+.btn-action,
+#addRowBtn,
+#deleteRowBtn,
+#loadFromFileBtn,
+#saveBtn {
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #00a8ff, #0077cc);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+#addRowBtn,
+#deleteRowBtn,
+#loadFromFileBtn,
+#saveBtn ::before {
+    content: '+';
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.btn-action:hover,
+#addRowBtn,
+#deleteRowBtn,
+#loadFromFileBtn,
+#saveBtn :hover {
+    background: linear-gradient(135deg, #0088cc, #005599);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+}
+
+.btn-action:active,
+#addRowBtn,
+#deleteRowBtn,
+#loadFromFileBtn,
+#saveBtn :active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Эффект объёмной карточки для разделов */
+.section-card {
+    background: rgba(30, 30, 45, 0.8);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 2px;
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.25),
+        inset 0 1px 2px rgba(255, 255, 255, 0.1),
+        0 -1px 4px rgba(0, 168, 255, 0.15);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: 1px solid rgba(0, 168, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.section-card:hover {
+    box-shadow:
+        0 6px 16px rgba(0, 0, 0, 0.3),
+        inset 0 1px 3px rgba(255, 255, 255, 0.15),
+        0 -2px 6px rgba(0, 168, 255, 0.25);
+    transform: translateY(-2px);
+    background: rgba(40, 40, 60, 0.9);
+}
+
+/* Заголовок раздела */
+.section-title {
+    grid-column: 1 / -1;
+    margin: 0 0 16px 0;
+    padding: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #00a8ff;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    text-align: left;
+    position: relative;
+    margin-bottom: 12px;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 0;
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(90deg, #00a8ff, transparent);
+    border-radius: 1px;
+}
+
+/* Контейнер для таблицы — обеспечивает корректное отображение и скроллинг */
+.table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 12px;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+/* Таблица — дополнительные стили */
+#itemsTable {
+    width: 100%;
+    table-layout: fixed;
+    min-width: 1000px; /* Минимальная ширина для читаемости колонок */
+}
+
+#itemsTable th,
+#itemsTable td {
+    text-align: center;
+    padding: 10px 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Выравнивание чекбокса в таблице */
+#itemsTable .row-checkbox {
+    margin: 0 auto;
+    display: block;
+    width: 16px;
+    height: 16px;
+}
+
+/* Стили для строк таблицы */
+#itemsTable tbody tr {
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+#itemsTable tbody tr:hover {
+    background: rgba(0, 168, 255, 0.1);
+    transform: scale(1.005);
+    z-index: 1;
+    position: relative;
+}
+
+/* Фокусировка на ячейках таблицы */
+#itemsTable .input-text {
+    width: 100%;
+    padding: 8px 10px;
+    font-size: 0.9rem;
+    border: none;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+#itemsTable .input-text:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 0 0 2px rgba(100, 200, 255, 0.6);
+    z-index: 2;
+    position: relative;
+}
+
+/* Адаптация для мобильных устройств */
+@media (max-width: 768px) {
+    .section-card {
+        padding: 12px;
+        margin-bottom: 16px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .form-group {
+        gap: 6px;
+    }
+
+    label {
+        font-size: 13px;
+        letter-spacing: 0.3px;
+    }
+
+    .input-readonly,
+    .select-input,
+    .input-text,
+    .items-table input {
+        padding: 5px 14px;
+        font-size: 10px;
+    }
+
+    /* Адаптация таблицы для мобильных */
+    .table-container {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #itemsTable {
+        display: block;
+        min-width: auto;
+        font-size: 0.85em;
+    }
+
+    #itemsTable th,
+    #itemsTable td {
+        min-width: 120px;
+        padding: 8px 6px;
+        font-size: 11px;
+    }
+
+    #itemsTable thead th {
+        padding: 10px 6px;
+    }
+
+    /* Кнопка на мобильных — занимает всю ширину */
+    #addRowBtn {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+        margin-top: 16px;
+    }
+}
+
+/* Дополнительные эффекты для интерактивности */
+.input-text,
+.select-input {
+    will-change: transform, box-shadow;
+}
+
+.input-text:focus,
+.select-input:focus {
+    will-change: none;
+}
+
+/* Улучшение контрастности для доступности */
+@media (prefers-contrast: high) {
+    .input-readonly,
+    .select-input,
+    .input-text,
+    .items-table input {
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .items-table {
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+}
+
+/* Плавные переходы для всех интерактивных элементов */
+* {
+    transition: background 0.3s ease, border 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Убираем лишние отступы у последней строки таблицы */
+.items-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Стили для состояний элементов */
+.input-text:disabled,
+.input-readonly:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.select-input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* Специальные стили для чекбокса "выбрать всё" */
+#selectAll {
+    margin: 0;
+    align-self: center;
+}
+
+/* Дополнительные отступы для читаемости в ячейках таблицы */
+@media (min-width: 769px) {
+    .items-table td {
+        padding: 10px 12px;
+    }
+
+    .items-table thead th {
+        padding: 12px 12px;
+    }
+}
+
+/* Выделение строки при фокусе внутри */
+#itemsTable .item-row:focus-within {
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 0 0 2px rgba(100, 200, 255, 0.5);
+}
+
+/* Оптимизация для очень узких экранов */
+@media (max-width: 480px) {
+    .container {
+        padding: 8px;
+    }
+
+    .section-card {
+        padding: 10px;
+    }
+
+    label {
+        font-size: 0.75rem;
+    }
+
+    .input-text,
+    .select-input,
+    .input-readonly {
+        font-size: 0.8rem;
+        padding: 4px 10px;
+    }
+
+    #itemsTable th,
+    #itemsTable td {
+        padding: 6px 4px;
+        font-size: 0.75rem;
+    }
+}
+
+
+.comments-section {
+    margin: 20px 0;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border: 2px solid #00a8ff;
+    box-shadow: 
+        0 0 0 4px rgba(0, 168, 255, 0.2),
+        0 8px 24px rgba(0, 0, 0, 0.3),
+        inset 0 2px 4px rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+
+.comments-column {
+    display: inline-block;
+    width: calc(33.333% - 20px);
+    vertical-align: top;
+    padding: 0 10px;
+}
+
+.vertical-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 8px;
+}
+
+.field-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #00a8ff;
+    padding: 8px 12px;
+    background: rgba(0, 168, 255, 0.1);
+    border-radius: 6px;
+    white-space: nowrap;
+    text-align: center;
+}
+
+.comment-input {
+    width: 100%;
+    min-height: 80px;
+    padding: 12px 16px;
+    border: none;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    font-size: 14px;
+    line-height: 1.5;
+    resize: vertical;
+    transition: all 0.3s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), inset 0 1px 2px rgba(255, 255, 255, 0.1);
+}
+
+.comment-input:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 
+        0 0 0 2px rgba(100, 200, 255, 0.4),
+        0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.save-btn {
+    display: block;
+    margin: 24px auto 0;
+    padding: 14px 32px;
+    background: linear-gradient(135deg, #00a8ff, #0077cc);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow:
+        0 3px 8px rgba(0, 0, 0, 0.25),
+        0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+.save-btn:hover {
+    background: linear-gradient(135deg, #0088cc, #005599);
+    transform: translateY(-2px);
+    box-shadow:
+        0 6px 16px rgba(0, 0, 0, 0.3),
+        0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.save-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Адаптация для мобильных */
+@media (max-width: 768px) {
+    .comments-column {
+        width: 100%;
+        padding: 10px 0;
+        margin-bottom: 16px;
+    }
+    
+    .comments-section {
+        padding: 12px;
+        margin: 16px 0;
+    }
+}
+
+
+                                    /* REGISTRATION FORM*/
+
+.login-card {
+    background: rgba(30, 30, 45, 0.9);
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.25),
+        inset 0 1px 2px rgba(255, 255, 255, 0.1),
+        0 -1px 4px rgba(0, 168, 255, 0.15);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: 1px solid rgba(0, 168, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.login-title {
+    text-align: center;
+    margin-bottom: 24px;
+    font-size: 24px;
+    color: #00a8ff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.main-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+label {
+    font-size: 9px;
+    font-weight: 500;
+    opacity: 0.9;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.input-text {
+    padding: 12px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.2),
+        inset 0 -1px 1px rgba(0, 0, 0, 0.1);
+}
+
+.input-text:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 0 0 2px rgba(100, 200, 255, 0.4);
+}
+
+.btn-action {
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #00a8ff, #0077cc);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.btn-action:hover {
+    background: linear-gradient(135deg, #0088cc, #005599);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+}
+
+.btn-action:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.error-message {
+    color: #ff4444;
+    font-size: 12px;
+    text-align: center;
+    margin-top: 12px;
+    height: 16px;
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 10px;
+        width: 95%;
+    }
+    .login-card {
+        padding: 20px;
+    }
+    .login-title {
+        font-size: 20px;
+    }
+    .input-text {
+        padding: 10px 14px;
+        font-size: 14px;
+    }
+    .btn-action {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+}
