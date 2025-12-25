@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Система управления</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <script src="/js/script.js" defer></script>
+</head>
+<body>
+<div class="container">
+    <h1>Система управления</h1>
+
+    <div class="buttons-grid">
+        <a href="commercial.html" class="button-tile">Отдел продаж</a>
+        <a href="logistic.html" class="button-tile">Логистика</a>
+        <a href="logistic.html" class="button-tile">ВЭД</a>
+        <a href="logistic.html" class="button-tile">Бухгалтерия</a>
+    </div>
+
+    <div class="buttons-grid">
+        <a href="allQuestions.html" class="button-tile">Все запросы КП</a>
+        <a href="zaproskp.html" class="button-tile">Создать запрос КП</a>
+        <!-- Кнопка для открытия модального окна -->
+        <button type="button" class="button-tile" id="openFileUploadBtn">
+            Создать запрос КП из файла
+        </button>
+        <a href="zaproskp.html" class="button-tile">Отчет по запросам КП</a>
+        <a href="allRequests.html" class="button-tile">Все заявки</a>
+        <a href="zaproskp.html" class="button-tile">Отчет по заявкам</a>
+    </div>
+
+    <!-- Другие секции страницы -->
+    <div class="section-card" aria-labelledby="section-title-applications">
+        <h2 id="section-title-applications" class="section-title">Заявки</h2>
+        <div class="section-content" aria-describedby="section-title-applications">
+            <p>Загружаются активные заявки...</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

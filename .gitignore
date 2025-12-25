@@ -8,7 +8,6 @@ target/
 .apt_generated
 .classpath
 .factorypath
-git
 .project
 .settings
 .springBeans
@@ -19,6 +18,7 @@ git
 *.iws
 *.iml
 *.ipr
+*.yml
 
 ### NetBeans ###
 /nbproject/private/

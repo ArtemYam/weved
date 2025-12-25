@@ -23,5 +23,9 @@ public class RequestController {
     @Autowired
     private ApplicationRepository applicationRepository;
 
+    @GetMapping("/zaproskp.html")
+    public String showLoginPage() {
+        return "zaproskp"; // Thymeleaf найдёт login.html в /templates/
+    }
 
 }

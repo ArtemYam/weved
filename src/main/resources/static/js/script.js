@@ -1,20 +1,20 @@
-document.addEventListener('DOMContentLoaded', function() {
-                                // Обработка блока "ИНФОРМАЦИЯ" в ЗАПРОСЕ КП 
+document.addEventListener("DOMContentLoaded", function () {
+    // Обработка блока "ИНФОРМАЦИЯ" в ЗАПРОСЕ КП
     // Элементы формы
-    const numberInput = document.getElementById('number');
-    const dateInput = document.getElementById('date');
-    const managerSelect = document.getElementById('manager');
+    const numberInput = document.getElementById("number");
+    const dateInput = document.getElementById("date");
+    const managerSelect = document.getElementById("manager");
 
-                                    // Базовый URL бэкенда (заменить на актуальный)
-    const API_BASE_URL = 'http://localhost:8080/api';
+    // Базовый URL бэкенда (замените на актуальный)
+    const API_BASE_URL = "http://your-backend-server:8080/api";
 
-                                                             // Функция для загрузки номера документа
+    // Функция для загрузки номера документа
     async function loadDocumentNumber() {
         try {
             const response = await fetch(`${API_BASE_URL}/document/next-number`, {
-                method: 'POST',
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json'
+                    "Content-Type": "application/json"
                 }
             });
 
@@ -23,20 +23,20 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             const data = await response.json();
-            numberInput.value = data.number || 'Не удалось получить номер';
+            numberInput.value = data.number || "Не удалось получить номер";
         } catch (error) {
-            console.error('Ошибка загрузки номера:', error);
-            numberInput.value = 'Ошибка загрузки';
+            console.error("Ошибка загрузки номера:", error);
+            numberInput.value = "Ошибка загрузки";
         }
     }
 
-                                                         // Функция для загрузки текущей даты
+    // Функция для загрузки текущей даты
     async function loadCurrentDate() {
         try {
             const response = await fetch(`${API_BASE_URL}/system/current-date`, {
-                method: 'GET',
+                method: "GET",
                 headers: {
-            'Content-Type': 'application/json'
+                    "Content-Type": "application/json"
                 }
             });
 
@@ -45,20 +45,20 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             const data = await response.json();
-            dateInput.value = data.date || new Date().toLocaleDateString('ru-RU');
+            dateInput.value = data.date || new Date().toLocaleDateString("ru-RU");
         } catch (error) {
-            console.error('Ошибка загрузки даты:', error);
-            dateInput.value = new Date().toLocaleDateString('ru-RU');
+            console.error("Ошибка загрузки даты:", error);
+            dateInput.value = new Date().toLocaleDateString("ru-RU");
         }
     }
 
-                                                         // Функция для загрузки списка менеджеров
+    // Функция для загрузки списка менеджеров
     async function loadManagers() {
         try {
             const response = await fetch(`${API_BASE_URL}/users/managers`, {
-                method: 'GET',
+                method: "GET",
                 headers: {
-            'Content-Type': 'application/json'
+                    "Content-Type": "application/json"
                 }
             });
 
@@ -69,23 +69,23 @@ document.addEventListener('DOMContentLoaded', function() {
             const managers = await response.json();
 
             // Очищаем существующие опции
-            managerSelect.innerHTML = '';
+            managerSelect.innerHTML = "";
 
             // Добавляем опцию «Выберите менеджера»
-            const defaultOption = document.createElement('option');
-            defaultOption.value = '';
-            defaultOption.textContent = 'Выберите менеджера';
+            const defaultOption = document.createElement("option");
+            defaultOption.value = "";
+            defaultOption.textContent = "Выберите менеджера";
             managerSelect.appendChild(defaultOption);
 
             // Заполняем список менеджеров
-            managers.forEach(manager => {
-                const option = document.createElement('option');
+            managers.forEach((manager) => {
+                const option = document.createElement("option");
                 option.value = manager.id;
                 option.textContent = manager.name;
                 managerSelect.appendChild(option);
             });
         } catch (error) {
-            console.error('Ошибка загрузки менеджеров:', error);
+            console.error("Ошибка загрузки менеджеров:", error);
             managerSelect.innerHTML = '<option value="">Ошибка загрузки</option>';
         }
     }
@@ -99,24 +99,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Запускаем инициализацию
     initializeFormFields();
-    
-    
-                                                //Обработка кнопки Добавить в таблице для добавления новой строки
-    
+
+    //Обработка кнопки Добавить в таблице для добавления новой строки
+
     // Элементы таблицы и кнопки
-    const selectAllCheckbox = document.getElementById('selectAll');
-    const addRowBtn = document.getElementById('addRowBtn');
-    const tbody = document.getElementById('itemsTbody');
-    const deleteRowBtn = document.getElementById('deleteRowBtn');
+    const selectAllCheckbox = document.getElementById("selectAll");
+    const addRowBtn = document.getElementById("addRowBtn");
+    const tbody = document.getElementById("itemsTbody");
+    const deleteRowBtn = document.getElementById("deleteRowBtn");
 
     // Обработчик для главного чекбокса (Выбрать все)
-    selectAllCheckbox.addEventListener('change', function() {
+    selectAllCheckbox.addEventListener("change", function () {
         const isChecked = this.checked;
 
         // Получаем ВСЕ чекбоксы строк (включая динамически добавленные)
-        const allRowCheckboxes = document.querySelectorAll('#itemsTable tbody .row-checkbox');
+        const allRowCheckboxes = document.querySelectorAll("#itemsTable tbody .row-checkbox");
 
-        allRowCheckboxes.forEach(checkbox => {
+        allRowCheckboxes.forEach((checkbox) => {
             checkbox.checked = isChecked;
         });
 
@@ -126,14 +125,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Функция для обновления состояния главного чекбокса
     function updateSelectAllState() {
-        const rowCheckboxes = Array.from(
-            document.querySelectorAll('#itemsTable tbody .row-checkbox')
-        );
+        const rowCheckboxes = Array.from(document.querySelectorAll("#itemsTable tbody .row-checkbox"));
 
         if (rowCheckboxes.length === 0) return;
 
-        const allChecked = rowCheckboxes.every(checkbox => checkbox.checked);
-        const anyChecked = rowCheckboxes.some(checkbox => checkbox.checked);
+        const allChecked = rowCheckboxes.every((checkbox) => checkbox.checked);
+        const anyChecked = rowCheckboxes.some((checkbox) => checkbox.checked);
 
         selectAllCheckbox.checked = allChecked;
         selectAllCheckbox.indeterminate = !allChecked && anyChecked;
@@ -141,51 +138,51 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Функция для добавления обработчика к новому чекбоксу
     function addCheckboxHandler(checkbox) {
-        checkbox.addEventListener('change', updateSelectAllState);
+        checkbox.addEventListener("change", updateSelectAllState);
     }
 
     // Добавляем обработчики для существующих чекбоксов
-    document.querySelectorAll('#itemsTable tbody .row-checkbox').forEach(addCheckboxHandler);
+    document.querySelectorAll("#itemsTable tbody .row-checkbox").forEach(addCheckboxHandler);
 
     // Инициализируем состояние главного чекбокса при загрузке
     updateSelectAllState();
 
     // Обработчик клика по кнопке «Добавить строку»
-    addRowBtn.addEventListener('click', function() {
+    addRowBtn.addEventListener("click", function () {
         // Создаём новую строку
-        const newRow = document.createElement('tr');
-        newRow.className = 'item-row';
+        const newRow = document.createElement("tr");
+        newRow.className = "item-row";
 
         // Добавляем первую ячейку с чекбоксом
-        const checkboxCell = document.createElement('td');
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.className = 'row-checkbox';
+        const checkboxCell = document.createElement("td");
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.className = "row-checkbox";
         checkboxCell.appendChild(checkbox);
         newRow.appendChild(checkboxCell);
 
         // Массив заголовков столбцов (для атрибута placeholder)
         const columnPlaceholders = [
-            'Артикул',
-            'Код ТНВЭД',
-            'Наименование как в инвойсе',
-            'Наименование на русском',
-            'Вес',
-            'Количество общее',
-            'Единица измерения',
-            'НДС',
-            'Пошлина',
-            'Стоимость за шт',
-            'Стоимость Итого'
+            "Артикул",
+            "Код ТНВЭД",
+            "Наименование как в инвойсе",
+            "Наименование на русском",
+            "Вес",
+            "Количество общее",
+            "Единица измерения",
+            "НДС",
+            "Пошлина",
+            "Стоимость за шт",
+            "Стоимость Итого"
         ];
 
         // Создаём ячейки и входные поля
-        columnPlaceholders.forEach(placeholder => {
-            const cell = document.createElement('td');
-            const input = document.createElement('input');
+        columnPlaceholders.forEach((placeholder) => {
+            const cell = document.createElement("td");
+            const input = document.createElement("input");
 
-            input.type = 'text';
-            input.className = 'input-text';
+            input.type = "text";
+            input.className = "input-text";
             input.placeholder = placeholder;
 
             cell.appendChild(input);
@@ -202,29 +199,29 @@ document.addEventListener('DOMContentLoaded', function() {
         updateSelectAllState();
 
         // Плавно прокручиваем к новой строке (опционально)
-        newRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        newRow.scrollIntoView({ behavior: "smooth", block: "nearest" });
     });
-    
-                                                // ОБРАБОТКА КНОПКИ УДАЛИТЬ
+
+    // ОБРАБОТКА КНОПКИ УДАЛИТЬ
 
     // Обработчик клика по кнопке «Удалить строку»
-    deleteRowBtn.addEventListener('click', function() {
+    deleteRowBtn.addEventListener("click", function () {
         // Получаем все строки таблицы
-        const rows = Array.from(tbody.querySelectorAll('.item-row'));
+        const rows = Array.from(tbody.querySelectorAll(".item-row"));
         // Фильтруем строки, где чекбокс отмечен
-        const checkedRows = rows.filter(row => {
-            const checkbox = row.querySelector('.row-checkbox');
+        const checkedRows = rows.filter((row) => {
+            const checkbox = row.querySelector(".row-checkbox");
             return checkbox && checkbox.checked;
         });
 
         // Если нет отмеченных строк, выводим сообщение
         if (checkedRows.length === 0) {
-            alert('Пожалуйста, выберите строки для удаления');
+            alert("Пожалуйста, выберите строки для удаления");
             return;
         }
 
         // Удаляем отмеченные строки
-        checkedRows.forEach(row => {
+        checkedRows.forEach((row) => {
             tbody.removeChild(row);
         });
 
@@ -233,3 +230,82 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+                                                                                            /* МОДАЛЬНОЕ ОКНО ЗАГРУЗКИ КП ИЗ ФАЙЛА*/
+const openBtn = document.getElementById('openFileUploadBtn');
+
+    function createModal() {
+        // Оверлей (полностью покрывает экран)
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+
+        // Модальное окно (строго по центру)
+        const modal = document.createElement('div');
+        modal.className = 'modal-window';
+
+        modal.innerHTML = `
+            <span class="modal-close">&times;</span>
+            <h3 class="modal-title">Загрузить файл с запросом КП</h3>
+            <form class="file-upload-form">
+                <input type="file" id="fileInput" accept=".xlsx,.xls,.csv,.docx,.pdf" required>
+                <p>Выберите файл с вашего компьютера</p>
+                <div class="file-info" id="fileNameDisplay"></div>
+                <button type="submit" class="btn-upload">Загрузить</button>
+            </form>
+        `;
+
+        document.body.appendChild(overlay);
+        document.body.appendChild(modal);
+
+        return { overlay, modal };
+    }
+
+    function closeModal() {
+        const overlay = document.querySelector('.modal-overlay');
+        const modal = document.querySelector('.modal-window');
+
+        if (overlay) overlay.remove();
+        if (modal) modal.remove();
+    }
+
+    openBtn.addEventListener('click', function() {
+        const { overlay, modal } = createModal();
+
+        // Закрытие по крестику
+        modal.querySelector('.modal-close').addEventListener('click', closeModal);
+
+        // Закрытие при клике на оверлей (но не на само окно)
+        overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) closeModal();
+        });
+
+        // Отображение имени файла
+        const fileInput = document.getElementById('fileInput');
+        const fileNameDisplay = document.getElementById('fileNameDisplay');
+
+        fileInput.addEventListener('change', function() {
+            const file = this.files[0];
+            fileNameDisplay.textContent = file ? `Выбран файл: ${file.name}` : '';
+        });
+
+        // Отправка формы
+        modal.querySelector('form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert('Пожалуйста, выберите файл!');
+                return;
+            }
+
+            console.log('Загружается файл:', file.name);
+            alert('Файл успешно загружен!');
+            closeModal();
+        });
+    });
+
+    // Закрытие по Esc
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && document.querySelector('.modal-overlay')) {
+            closeModal();
+        }
+    });
