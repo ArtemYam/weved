@@ -1,94 +1,87 @@
 document.addEventListener("DOMContentLoaded", function () {
     // Обработка блока "ИНФОРМАЦИЯ" в ЗАПРОСЕ КП
     // Элементы формы
-    const numberInput = document.getElementById("number");
+    const numberInput = document.getElementById("saveBtn");
     const dateInput = document.getElementById("date");
     const managerSelect = document.getElementById("manager");
 
-    // Базовый URL бэкенда (замените на актуальный)
-    const API_BASE_URL = "http://your-backend-server:8080/api";
+                                                        // Базовый URL бэкенда (замените на актуальный)
+    const API_BASE_URL = "http://localhost:8080";
 
-    // Функция для загрузки номера документа
-    async function loadDocumentNumber() {
-        try {
-            const response = await fetch(`${API_BASE_URL}/document/next-number`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            });
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
 
-            const data = await response.json();
-            numberInput.value = data.number || "Не удалось получить номер";
-        } catch (error) {
-            console.error("Ошибка загрузки номера:", error);
-            numberInput.value = "Ошибка загрузки";
-        }
+
+/**
+ * Инициализация обработчика кнопки "Сохранить"
+ */
+document.addEventListener('DOMContentLoaded', function() {
+    const saveButton = document.getElementById('saveBtn');
+    const numberInput = document.getElementById('number');
+
+    if (!saveButton || !numberInput) {
+        console.error('Не найдены элементы DOM: кнопка или поле ввода номера');
+        return;
     }
 
-    // Функция для загрузки текущей даты
-    async function loadCurrentDate() {
-        try {
-            const response = await fetch(`${API_BASE_URL}/system/current-date`, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            });
+    saveButton.addEventListener('click', handleSaveClick);
+});
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+/**
+ * Обработчик клика по кнопке "Сохранить"
+ */
+async function handleSaveClick() {
+    try {
+        const response = await fetch('http://localhost:8080/zaproskp/next-number', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
             }
+        });
 
-            const data = await response.json();
-            dateInput.value = data.date || new Date().toLocaleDateString("ru-RU");
-        } catch (error) {
-            console.error("Ошибка загрузки даты:", error);
-            dateInput.value = new Date().toLocaleDateString("ru-RU");
+        if (!response.ok) {
+            throw new Error(`HTTP ошибка: ${response.status}`);
         }
-    }
 
-    // Функция для загрузки списка менеджеров
-    async function loadManagers() {
-        try {
-            const response = await fetch(`${API_BASE_URL}/users/managers`, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            });
+        const data = await response.json();
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const managers = await response.json();
-
-            // Очищаем существующие опции
-            managerSelect.innerHTML = "";
-
-            // Добавляем опцию «Выберите менеджера»
-            const defaultOption = document.createElement("option");
-            defaultOption.value = "";
-            defaultOption.textContent = "Выберите менеджера";
-            managerSelect.appendChild(defaultOption);
-
-            // Заполняем список менеджеров
-            managers.forEach((manager) => {
-                const option = document.createElement("option");
-                option.value = manager.id;
-                option.textContent = manager.name;
-                managerSelect.appendChild(option);
-            });
-        } catch (error) {
-            console.error("Ошибка загрузки менеджеров:", error);
-            managerSelect.innerHTML = '<option value="">Ошибка загрузки</option>';
+        // Проверяем наличие поля number в ответе
+        if (data && data.number) {
+            document.getElementById('number').value = data.number;
+            showSuccessMessage(`Номер сохранён: ${data.number}`);
+        } else {
+            throw new Error('Неверный формат ответа от сервера');
         }
+
+    } catch (error) {
+        showErrorMessage(`Ошибка: ${error.message}`);
     }
+}
+
+/**
+ * Показывает сообщение об успешном выполнении
+ * @param {string} message - текст сообщения
+ */
+function showSuccessMessage(message) {
+    alert(message);
+}
+
+/**
+ * Показывает сообщение об ошибке
+ * @param {string} message - текст ошибки
+ */
+function showErrorMessage(message) {
+    console.error(message);
+    alert(`Произошла ошибка:\n${message}`);
+}
+
+
+
+
+
+
+
+
+
 
     // Инициализация всех полей при загрузке страницы
     async function initializeFormFields() {

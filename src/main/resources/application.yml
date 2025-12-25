@@ -15,4 +15,10 @@ spring:
         format_sql: true
     show-sql: true  # Вывод SQL в лог (для отладки)
     open-in-view: false
+  security:
+    user:
+      name: admin
+      password: admin
+      roles: ADMIN
+
 
