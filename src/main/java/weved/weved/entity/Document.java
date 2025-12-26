@@ -21,5 +21,8 @@ public class Document {
     private LocalDate createdAt;
 
     @Column(name = "manager", nullable = false)
-    private LocalDate manager;
+    private String manager;
+
+    @Column(name = "status", nullable = false)
+    private String status;
 }

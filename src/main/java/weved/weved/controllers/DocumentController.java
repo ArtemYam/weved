@@ -49,10 +49,14 @@ public class DocumentController {
     public ResponseEntity<?> saveDocument(@RequestBody DocumentRequest request) {
         try {
             LocalDate createdAt = LocalDate.parse(request.getCreatedAt());  // Работает для "2025-12-26"
+            String manager = request.getManager();  // ← Получаем строку "имя фамилия"
+            String status= request.getStatus();
 
             Document saved = documentService.saveDocument(
                     request.getDocumentNumber(),
-                    createdAt
+                    createdAt,
+                    manager,
+                    status
             );
 
             return ResponseEntity.ok(saved);

@@ -199,8 +199,9 @@ label {
 #addRowBtn,
 #deleteRowBtn,
 #loadFromFileBtn,
-#saveBtn {
-    padding: 12px 24px;
+#saveBtn,
+#saveBtn1 {
+    padding: 6px 8px;
     background: linear-gradient(135deg, #00a8ff, #0077cc);
     color: #ffffff;
     border: none;
@@ -219,9 +220,11 @@ label {
 #addRowBtn,
 #deleteRowBtn,
 #loadFromFileBtn,
-#saveBtn ::before {
+#saveBtn,
+#saveBtn1,
+#btn-action ::before {
     content: '+';
-    font-size: 16px;
+    font-size: 10px;
     font-weight: bold;
 }
 
@@ -229,7 +232,8 @@ label {
 #addRowBtn,
 #deleteRowBtn,
 #loadFromFileBtn,
-#saveBtn :hover {
+#saveBtn,
+#saveBtn1 :hover {
     background: linear-gradient(135deg, #0088cc, #005599);
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
@@ -239,7 +243,8 @@ label {
 #addRowBtn,
 #deleteRowBtn,
 #loadFromFileBtn,
-#saveBtn :active {
+#saveBtn,
+#saveBtn1 :active {
     transform: translateY(0);
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
@@ -590,12 +595,12 @@ label {
 .save-btn {
     display: block;
     margin: 24px auto 0;
-    padding: 14px 32px;
+    padding: 8px 20px;
     background: linear-gradient(135deg, #00a8ff, #0077cc);
     color: #ffffff;
     border: none;
     border-radius: 8px;
-    font-size: 15px;
+    font-size: 10px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;

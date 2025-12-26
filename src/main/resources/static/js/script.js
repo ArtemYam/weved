@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
     // Обработка блока "ИНФОРМАЦИЯ" в ЗАПРОСЕ КП
     // Элементы формы
-    const numberInput = document.getElementById("saveBtn");
+//    const numberInput = document.getElementById("saveBtn");
     const dateInput = document.getElementById("date");
     const managerSelect = document.getElementById("manager");
         // Элементы таблицы и кнопки
@@ -152,6 +152,14 @@ document.addEventListener("DOMContentLoaded", function () {
         newRow.scrollIntoView({ behavior: "smooth", block: "nearest" });
     });
 
+
+
+
+
+
+
+
+
     // ОБРАБОТКА КНОПКИ УДАЛИТЬ
 
     // Обработчик клика по кнопке «Удалить строку»
@@ -180,7 +188,14 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-                                                                                            /* МОДАЛЬНОЕ ОКНО ЗАГРУЗКИ КП ИЗ ФАЙЛА*/
+
+
+
+
+
+
+
+        // ЗАГРУЗКА ИЗ ФАЙЛА                                                                                    /* МОДАЛЬНОЕ ОКНО ЗАГРУЗКИ КП ИЗ ФАЙЛА*/
 const openBtn = document.getElementById('openFileUploadBtn');
 
     function createModal() {

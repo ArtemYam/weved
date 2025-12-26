@@ -47,7 +47,7 @@ public class DocumentService {
      * Сохраняет документ. Если номер уже существует — генерирует новый.
      * @return сохранённый документ с уникальным номером
      */
-    public Document saveDocument(String documentNumber, LocalDate createdAt) {
+    public Document saveDocument(String documentNumber, LocalDate createdAt, String manager,String status) {
         Document document = new Document();
 
         if (documentNumber == null || documentRepository.existsByDocumentNumber(documentNumber)) {
@@ -56,6 +56,8 @@ public class DocumentService {
 
         document.setDocumentNumber(documentNumber);
         document.setCreatedAt(createdAt);  // Теперь LocalDate
+        document.setManager(manager);  // ← Сохраняем "имя фамилия"
+        document.setStatus(status);
 
         return documentRepository.save(document);
     }
