@@ -7,18 +7,14 @@ import weved.weved.entity.Document;
 @Repository
 public interface DocumentRepository extends JpaRepository<Document, Long> {
 
-    /**
-     * Находит максимальный номер документа в числовом порядке.
-     * Использует native SQL для CAST и LIMIT.
-     */
+    //Находит максимальный номер документа в числовом порядке
     @Query(
-            value = "SELECT document_number FROM documents ORDER BY CAST(document_number AS INTEGER) DESC LIMIT 1",
+            value = "SELECT document_number FROM documents ORDER " +
+                    "BY CAST(document_number AS INTEGER) DESC LIMIT 1",
             nativeQuery = true
     )
     String findLastNumber();
 
-    /**
-     * Проверяет существование документа по номеру.
-     */
+    //Проверяет существование документа по номеру.
     boolean existsByDocumentNumber(String documentNumber);
 }

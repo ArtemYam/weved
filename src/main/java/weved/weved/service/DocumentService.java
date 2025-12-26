@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import weved.weved.entity.Document;
 import weved.weved.repository.DocumentRepository;
 
+import java.time.LocalDate;
+
 @Service
 @Transactional
 public class DocumentService {
@@ -43,17 +45,19 @@ public class DocumentService {
 
     /**
      * Сохраняет документ. Если номер уже существует — генерирует новый.
-     * @param document документ для сохранения
      * @return сохранённый документ с уникальным номером
      */
-    public Document saveDocument(Document document) {
-        String number = document.getDocumentNumber();
+    public Document saveDocument(String documentNumber, LocalDate createdAt) {
+        Document document = new Document();
 
-        if (number == null || documentRepository.existsByDocumentNumber(number)) {
-            number = generateNextNumber();
-            document.setDocumentNumber(number);
+        if (documentNumber == null || documentRepository.existsByDocumentNumber(documentNumber)) {
+            documentNumber = generateNextNumber();
         }
+
+        document.setDocumentNumber(documentNumber);
+        document.setCreatedAt(createdAt);  // Теперь LocalDate
 
         return documentRepository.save(document);
     }
+
 }

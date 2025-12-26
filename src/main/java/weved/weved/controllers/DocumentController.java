@@ -3,10 +3,13 @@ package weved.weved.controllers;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import weved.weved.dto.DocumentRequest;
 import weved.weved.entity.Document;
 import weved.weved.service.DocumentService;
 
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Map;
 import static java.util.Collections.singletonMap;
 
@@ -39,13 +42,19 @@ public class DocumentController {
 
     /**
      * Сохраняет документ. Если номер занят — генерирует новый.
-     * @param document JSON‑объект документа
+     *   JSON‑объект документа
      * @return сохранённый документ или ошибка
      */
     @PostMapping("/save")
-    public ResponseEntity<?> saveDocument(@RequestBody Document document) {
+    public ResponseEntity<?> saveDocument(@RequestBody DocumentRequest request) {
         try {
-            Document saved = documentService.saveDocument(document);
+            LocalDate createdAt = LocalDate.parse(request.getCreatedAt());  // Работает для "2025-12-26"
+
+            Document saved = documentService.saveDocument(
+                    request.getDocumentNumber(),
+                    createdAt
+            );
+
             return ResponseEntity.ok(saved);
         } catch (Exception e) {
             return ResponseEntity

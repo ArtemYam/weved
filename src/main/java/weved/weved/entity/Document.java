@@ -2,7 +2,8 @@ package weved.weved.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import java.time.LocalDateTime;
+
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "documents")
@@ -17,5 +18,8 @@ public class Document {
     private String documentNumber; // Исправлено: было 'number'
 
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDate createdAt;
+
+    @Column(name = "manager", nullable = false)
+    private LocalDate manager;
 }

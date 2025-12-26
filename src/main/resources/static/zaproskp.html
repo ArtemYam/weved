@@ -30,11 +30,15 @@
                             <label for="status">Статус</label>
                             <select id="status" class="select-input">
                                 <option value="created">Создана</option>
+                                <option value="in_progress">В работе</option>
+                                <option value="request_submitted">Заявка подана</option>
                             </select>
                         </div>
                         <div class="form-group">
                             <label for="manager">Менеджер</label>
-                            <select id="manager" class="select-input"></select>
+                            <select id="manager" class="select-input" aria-label="Выберите менеджера">
+                                <option value="">— Выберите менеджера —</option>
+                            </select>
                         </div>
                     </div>
                 </div>
