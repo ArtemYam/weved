@@ -364,7 +364,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     const formData = new FormData();
                     formData.append('file', file);
 
-                    const response = await fetch('/api/upload-excel', {
+                    // 1. Отправляем файл на парсинг (без сохранения!)
+                    const response = await fetch('/api/parse-excel', {
                         method: 'POST',
                         body: formData
                     });
@@ -376,9 +377,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     const data = await response.json();
 
-                    // Очищаем таблицу
+                    // 2. Очищаем таблицу
                     tbody.innerHTML = '';
 
+                    // 3. Заполняем таблицу данными
                     data.items.forEach(item => {
                         const newRow = document.createElement('tr');
                         newRow.className = 'item-row';
@@ -391,19 +393,11 @@ document.addEventListener('DOMContentLoaded', function() {
                         checkboxCell.appendChild(checkbox);
                         newRow.appendChild(checkboxCell);
 
-                        // Ячейки с данными — заполняем по порядку колонок в таблице
+                        // Ячейки с данными
                         const expectedFields = [
-                            'article',       // Артикул
-                            'tnvedCode',    // Код ТНВЭД
-                            'invoiceName',   // Наименование как в инвойсе
-                            'russianName',  // Наименование на русском
-                            'weight',       // Вес
-                            'quantity',     // Количество общее
-                            'unit',         // Единица измерения
-                            'vat',         // НДС
-                            'duty',         // Пошлина
-                            'pricePerUnit',  // Стоимость за шт
-                            'totalPrice'    // Стоимость Итого
+                            'article', 'tnvedCode', 'invoiceName', 'russianName',
+                            'weight', 'quantity', 'unit', 'vat', 'duty',
+                            'pricePerUnit', 'totalPrice'
                         ];
 
                         expectedFields.forEach(field => {
@@ -421,7 +415,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
 
                     updateSelectAllState();
-                    alert('Данные успешно загружены!');
+                    alert('Данные загружены и отображены!');
                     closeModal();
 
                 } catch (error) {

@@ -1,6 +1,7 @@
 package weved.weved.dto;
 
 import lombok.Data;
+import weved.weved.entity.Item;
 
 import java.util.ArrayList;
 import java.util.List;

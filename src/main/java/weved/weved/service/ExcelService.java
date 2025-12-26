@@ -3,7 +3,7 @@ package weved.weved.service;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import weved.weved.dto.Item;
+import weved.weved.entity.Item;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ public class ExcelService {
         COLUMN_MAPPING.put("пошлина", "duty");
         COLUMN_MAPPING.put("цена за шт", "pricePerUnit");
         COLUMN_MAPPING.put("стоимость итого", "totalPrice");
-        // Добавьте другие варианты названий при необходимости
+        //  другие варианты названий при необходимости
     }
 
 
@@ -125,4 +125,11 @@ public class ExcelService {
         return cell != null && cell.getCellType() == CellType.NUMERIC
                 ? (int) cell.getNumericCellValue() : 0;
     }
+
+//    public List<Item> getItemsByDocumentNumber(String documentNumber) {
+//        // Здесь должна быть логика получения из БД
+//        // Пример для JPA:
+////        return itemRepository.findByDocumentNumber(documentNumber);
+//    }
+
 }
