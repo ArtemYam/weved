@@ -351,18 +351,83 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             // Отправка формы
-            modal.querySelector('form').addEventListener('submit', function(e) {
+            modal.querySelector('form').addEventListener('submit', async function(e) {
                 e.preventDefault();
-                const file = fileInput.files[0];
 
+                const file = fileInput.files[0];
                 if (!file) {
                     alert('Пожалуйста, выберите файл!');
                     return;
                 }
 
-                console.log('Загружается файл:', file.name);
-                alert('Файл успешно загружен!');
-                closeModal();
+                try {
+                    const formData = new FormData();
+                    formData.append('file', file);
+
+                    const response = await fetch('/api/upload-excel', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.message || 'Ошибка загрузки файла');
+                    }
+
+                    const data = await response.json();
+
+                    // Очищаем таблицу
+                    tbody.innerHTML = '';
+
+                    data.items.forEach(item => {
+                        const newRow = document.createElement('tr');
+                        newRow.className = 'item-row';
+
+                        // Чекбокс
+                        const checkboxCell = document.createElement('td');
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.className = 'row-checkbox';
+                        checkboxCell.appendChild(checkbox);
+                        newRow.appendChild(checkboxCell);
+
+                        // Ячейки с данными — заполняем по порядку колонок в таблице
+                        const expectedFields = [
+                            'article',       // Артикул
+                            'tnvedCode',    // Код ТНВЭД
+                            'invoiceName',   // Наименование как в инвойсе
+                            'russianName',  // Наименование на русском
+                            'weight',       // Вес
+                            'quantity',     // Количество общее
+                            'unit',         // Единица измерения
+                            'vat',         // НДС
+                            'duty',         // Пошлина
+                            'pricePerUnit',  // Стоимость за шт
+                            'totalPrice'    // Стоимость Итого
+                        ];
+
+                        expectedFields.forEach(field => {
+                            const cell = document.createElement('td');
+                            const input = document.createElement('input');
+                            input.type = 'text';
+                            input.className = 'input-text';
+                            input.value = item[field] || '';
+                            cell.appendChild(input);
+                            newRow.appendChild(cell);
+                        });
+
+                        tbody.appendChild(newRow);
+                        addCheckboxHandler(checkbox);
+                    });
+
+                    updateSelectAllState();
+                    alert('Данные успешно загружены!');
+                    closeModal();
+
+                } catch (error) {
+                    console.error('Ошибка при загрузке файла:', error);
+                    alert('Произошла ошибка: ' + error.message);
+                }
             });
         });
     } else {
