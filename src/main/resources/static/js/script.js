@@ -4,84 +4,14 @@ document.addEventListener("DOMContentLoaded", function () {
     const numberInput = document.getElementById("saveBtn");
     const dateInput = document.getElementById("date");
     const managerSelect = document.getElementById("manager");
+        // Элементы таблицы и кнопки
+    const selectAllCheckbox = document.getElementById("selectAll");
+    const addRowBtn = document.getElementById("addRowBtn");
+    const tbody = document.getElementById("itemsTbody");
+    const deleteRowBtn = document.getElementById("deleteRowBtn");
 
                                                         // Базовый URL бэкенда (замените на актуальный)
     const API_BASE_URL = "http://localhost:8080";
-
-
-
-
-/**
- * Инициализация обработчика кнопки "Сохранить"
- */
-document.addEventListener('DOMContentLoaded', function() {
-    const saveButton = document.getElementById('saveBtn');
-    const numberInput = document.getElementById('number');
-
-    if (!saveButton || !numberInput) {
-        console.error('Не найдены элементы DOM: кнопка или поле ввода номера');
-        return;
-    }
-
-    saveButton.addEventListener('click', handleSaveClick);
-});
-
-/**
- * Обработчик клика по кнопке "Сохранить"
- */
-async function handleSaveClick() {
-    try {
-        const response = await fetch('http://localhost:8080/zaproskp/next-number', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error(`HTTP ошибка: ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        // Проверяем наличие поля number в ответе
-        if (data && data.number) {
-            document.getElementById('number').value = data.number;
-            showSuccessMessage(`Номер сохранён: ${data.number}`);
-        } else {
-            throw new Error('Неверный формат ответа от сервера');
-        }
-
-    } catch (error) {
-        showErrorMessage(`Ошибка: ${error.message}`);
-    }
-}
-
-/**
- * Показывает сообщение об успешном выполнении
- * @param {string} message - текст сообщения
- */
-function showSuccessMessage(message) {
-    alert(message);
-}
-
-/**
- * Показывает сообщение об ошибке
- * @param {string} message - текст ошибки
- */
-function showErrorMessage(message) {
-    console.error(message);
-    alert(`Произошла ошибка:\n${message}`);
-}
-
-
-
-
-
-
-
-
-
 
     // Инициализация всех полей при загрузке страницы
     async function initializeFormFields() {
@@ -90,17 +20,44 @@ function showErrorMessage(message) {
         await loadManagers();
     }
 
-    // Запускаем инициализацию
-    initializeFormFields();
+
+
+
+
+
+    async function loadDocumentNumber() {
+            if (!elements.numberInput) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/zaproskp/next-number`);
+                if (!response.ok) throw new Error(`HTTP ошибка: ${response.status}`);
+
+
+                const data = await response.json();
+                if (data?.number) {
+                    elements.numberInput.value = data.number;
+                }
+            } catch (error) {
+                showErrorMessage(`Не удалось загрузить номер: ${error.message}`);
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     //Обработка кнопки Добавить в таблице для добавления новой строки
-
-    // Элементы таблицы и кнопки
-    const selectAllCheckbox = document.getElementById("selectAll");
-    const addRowBtn = document.getElementById("addRowBtn");
-    const tbody = document.getElementById("itemsTbody");
-    const deleteRowBtn = document.getElementById("deleteRowBtn");
-
     // Обработчик для главного чекбокса (Выбрать все)
     selectAllCheckbox.addEventListener("change", function () {
         const isChecked = this.checked;
@@ -301,4 +258,7 @@ const openBtn = document.getElementById('openFileUploadBtn');
         if (e.key === 'Escape' && document.querySelector('.modal-overlay')) {
             closeModal();
         }
+
+        // Запускаем инициализацию
+            initializeFormFields();
     });

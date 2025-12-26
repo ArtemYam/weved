@@ -1,13 +1,12 @@
 package weved.weved.service;
 
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import weved.weved.entity.Document;
 import weved.weved.repository.DocumentRepository;
 
-import java.time.LocalDateTime;
-
 @Service
+@Transactional
 public class DocumentService {
 
     private final DocumentRepository documentRepository;
@@ -16,28 +15,45 @@ public class DocumentService {
         this.documentRepository = documentRepository;
     }
 
-    @Transactional
-    public String getNextDocumentNumber() {
-        // Получаем максимальный номер из БД
-        String maxNumberStr = documentRepository.findMaxDocumentNumber();
+    /**
+     * Генерирует следующий 6‑значный номер документа.
+     * Пример: 000001, 000002, ..., 999999.
+     * @return новый номер в формате "00000X"
+     * @throws RuntimeException если превышен лимит (999 999)
+     */
+    public String generateNextNumber() {
+        String lastNumber = documentRepository.findLastNumber();
+        int nextSequence = 1;
 
-        long nextNumber;
-        if (maxNumberStr == null || maxNumberStr.isEmpty()) {
-            nextNumber = 1;
-        } else {
+        if (lastNumber != null) {
             try {
-                nextNumber = Long.parseLong(maxNumberStr) + 1;
+                int currentSequence = Integer.parseInt(lastNumber);
+                nextSequence = currentSequence + 1;
+
+                if (nextSequence > 999_999) {
+                    throw new RuntimeException("Превышено максимальное число документов (999 999)");
+                }
             } catch (NumberFormatException e) {
-                nextNumber = 1; // если формат не числовой — начинаем с 1
+                throw new RuntimeException("Некорректный формат номера в БД: " + lastNumber, e);
             }
         }
 
-        // Создаём и сохраняем документ
-        Document document = new Document();
-        document.setNumber(String.valueOf(nextNumber));
-        document.setCreatedAt(LocalDateTime.now());
-        documentRepository.save(document);
+        return String.format("%06d", nextSequence);
+    }
 
-        return String.valueOf(nextNumber);
+    /**
+     * Сохраняет документ. Если номер уже существует — генерирует новый.
+     * @param document документ для сохранения
+     * @return сохранённый документ с уникальным номером
+     */
+    public Document saveDocument(Document document) {
+        String number = document.getDocumentNumber();
+
+        if (number == null || documentRepository.existsByDocumentNumber(number)) {
+            number = generateNextNumber();
+            document.setDocumentNumber(number);
+        }
+
+        return documentRepository.save(document);
     }
 }
