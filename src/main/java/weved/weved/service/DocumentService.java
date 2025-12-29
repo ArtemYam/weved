@@ -1,6 +1,7 @@
 package weved.weved.service;
 
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import weved.weved.entity.Document;
 import weved.weved.repository.DocumentRepository;
@@ -11,55 +12,43 @@ import java.time.LocalDate;
 @Transactional
 public class DocumentService {
 
-    private final DocumentRepository documentRepository;
+    @Autowired
+    private DocumentRepository documentRepository;
 
-    public DocumentService(DocumentRepository documentRepository) {
-        this.documentRepository = documentRepository;
+    @Transactional
+    public Document saveDocument(String documentNumber, LocalDate createdAt,
+                                 String manager, String status) {
+
+        Document newDoc = new Document();
+        newDoc.setDocumentNumber(documentNumber);
+        newDoc.setCreatedAt(createdAt);
+        newDoc.setManager(manager);
+        newDoc.setStatus(status);
+
+
+        return documentRepository.save(newDoc);  // ← Всегда INSERT
     }
 
-    /**
-     * Генерирует следующий 6‑значный номер документа.
-     * Пример: 000001, 000002, ..., 999999.
-     * @return новый номер в формате "00000X"
-     * @throws RuntimeException если превышен лимит (999 999)
-     */
+
     public String generateNextNumber() {
+        // Получаем последний сохранённый номер
         String lastNumber = documentRepository.findLastNumber();
-        int nextSequence = 1;
 
-        if (lastNumber != null) {
-            try {
-                int currentSequence = Integer.parseInt(lastNumber);
-                nextSequence = currentSequence + 1;
-
-                if (nextSequence > 999_999) {
-                    throw new RuntimeException("Превышено максимальное число документов (999 999)");
-                }
-            } catch (NumberFormatException e) {
-                throw new RuntimeException("Некорректный формат номера в БД: " + lastNumber, e);
-            }
+        // Если в БД нет документов — начинаем с "000001"
+        if (lastNumber == null || lastNumber.trim().isEmpty()) {
+            return "000001";
         }
 
-        return String.format("%06d", nextSequence);
-    }
-
-    /**
-     * Сохраняет документ. Если номер уже существует — генерирует новый.
-     * @return сохранённый документ с уникальным номером
-     */
-    public Document saveDocument(String documentNumber, LocalDate createdAt, String manager,String status) {
-        Document document = new Document();
-
-        if (documentNumber == null || documentRepository.existsByDocumentNumber(documentNumber)) {
-            documentNumber = generateNextNumber();
+        try {
+            // Преобразуем строку в число, увеличиваем на 1
+            int nextInt = Integer.parseInt(lastNumber.trim()) + 1;
+            // Форматируем в строку с ведущими нулями (6 знаков)
+            return String.format("%06d", nextInt);
+        } catch (NumberFormatException e) {
+            // Если номер в БД не числовой — логируем ошибку и возвращаем начальный номер
+            System.err.println("Ошибка формата номера в БД: " + lastNumber);
+            return "000001";
         }
-
-        document.setDocumentNumber(documentNumber);
-        document.setCreatedAt(createdAt);  // Теперь LocalDate
-        document.setManager(manager);  // ← Сохраняем "имя фамилия"
-        document.setStatus(status);
-
-        return documentRepository.save(document);
     }
-
 }
+

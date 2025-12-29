@@ -42,18 +42,13 @@ public class ExcelUploadController {
     public ResponseEntity<String> saveDocument(@RequestBody DocumentWithNomenclatures data) {
         try {
             excelService.saveDocument(data.getDocument());
-
-            for (Nomenclature nomenclature : data.getNomenclatures()) {
-                excelService.saveNomenclature(nomenclature);
-            }
-
+            excelService.saveNomenclatures(data.getNomenclatures());  // ← Используем новый метод
             return ResponseEntity.ok("Документ и номенклатуры сохранены");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Ошибка: " + e.getMessage());
         }
     }
-
 
     // Существующий метод для парсинга Excel
     @PostMapping("/parse-excel")

@@ -105,6 +105,7 @@ document.addEventListener('DOMContentLoaded', function() {
         selectedStatus = this.value;
         console.log('Статус выбран:', selectedStatus);
     });
+
     async function saveDocumentWithNomenclatures() {
         if (!documentNumber) {
             alert('Номер документа не получен!');
@@ -119,16 +120,16 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Собираем номенклатуры из строк таблицы
         const nomenclatures = [];
         const rows = tbody.querySelectorAll('.item-row');
 
         for (const row of rows) {
             const inputs = row.querySelectorAll('input.input-text');
+            const checkbox = row.querySelector('.row-checkbox');
             const article = inputs[0].value.trim();
 
-            // Пропускаем пустые строки (если артикул не заполнен)
-            if (!article) continue;
+            // Если артикул пуст И строка не отмечена на удаление — пропускаем
+            if (!article && !checkbox.checked) continue;
 
             const nomenclature = {
                 article: article,
@@ -142,19 +143,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 duty: inputs[8].value.trim(),
                 pricePerUnit: parseFloat(inputs[9].value) || 0,
                 totalPrice: parseFloat(inputs[10].value) || 0,
-                documentNumber: documentNumber  // Связь с документом
+                documentNumber: documentNumber,
+                isDeleted: checkbox.checked  // ← Флаг удаления
             };
             nomenclatures.push(nomenclature);
         }
 
-        // Проверка: есть ли номенклатуры
         if (nomenclatures.length === 0) {
             alert('Добавьте хотя бы одну позицию номенклатуры!');
             return;
         }
 
         try {
-            // Данные документа
             const documentData = {
                 documentNumber: documentNumber,
                 createdAt: dateInput.value,
@@ -162,7 +162,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 status: selectedStatus
             };
 
-            // Полный payload
             const payload = {
                 document: documentData,
                 nomenclatures: nomenclatures

@@ -14,7 +14,7 @@ public class Document {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "document_number", unique = true, nullable = false, length = 6)
+    @Column(name = "document_number", nullable = false, length = 6)
     private String documentNumber; // Исправлено: было 'number'
 
     @Column(name = "created_at", nullable = false)

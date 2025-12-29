@@ -5,6 +5,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import weved.weved.dto.NomenclatureDto;
 import weved.weved.entity.Document;
 import weved.weved.entity.Nomenclature;
 import weved.weved.repository.DocumentRepository;
@@ -27,6 +28,7 @@ public class ExcelService {
 
     // Сопоставление возможных названий столбцов Excel с полями модели
     private static final Map<String, String> COLUMN_MAPPING = new HashMap<>();
+
     static {
         COLUMN_MAPPING.put("артикул", "article");
         COLUMN_MAPPING.put("код тнвд", "tnvedCode");
@@ -122,6 +124,7 @@ public class ExcelService {
                 break;
         }
     }
+
     // Утилиты для извлечения значений
     private String getStringValue(Cell cell) {
         return cell != null ? cell.toString() : "";
@@ -147,8 +150,57 @@ public class ExcelService {
     }
 
     @Transactional
-    public void saveNomenclature (Nomenclature nomenclature) {
-        nomenclatureRepository.save(nomenclature);
-    }
+    public void saveNomenclatures(List<NomenclatureDto> dtoList) {
+        for (NomenclatureDto dto : dtoList) {
+            Nomenclature existing = nomenclatureRepository
+                    .findByDocumentNumberAndArticle(dto.getDocumentNumber(), dto.getArticle());
 
+            if (dto.isDeleted()) {
+                // Если строка отмечена на удаление
+                if (existing != null) {
+                    nomenclatureRepository.delete(existing);  // Удаляем из БД
+                    System.out.println("Удалена номенклатура: " + dto.getArticle() +
+                            " (документ " + dto.getDocumentNumber() + ")");
+                }
+                continue;  // Не сохраняем её повторно
+            }
+
+            if (existing != null) {
+                // Обновляем существующую запись
+                existing.setTnvedCode(dto.getTnvedCode());
+                existing.setInvoiceName(dto.getInvoiceName());
+                existing.setRussianName(dto.getRussianName());
+                existing.setWeight(dto.getWeight());
+                existing.setQuantity(dto.getQuantity());
+                existing.setUnit(dto.getUnit());
+                existing.setVat(dto.getVat());
+                existing.setDuty(dto.getDuty());
+                existing.setPricePerUnit(dto.getPricePerUnit());
+                existing.setTotalPrice(dto.getTotalPrice());
+
+                System.out.println("Обновлена номенклатура: " + dto.getArticle() +
+                        " (документ " + dto.getDocumentNumber() + ")");
+            } else {
+                // Создаём новую запись
+                Nomenclature newNomenclature = new Nomenclature();
+                newNomenclature.setArticle(dto.getArticle());
+                newNomenclature.setTnvedCode(dto.getTnvedCode());
+                newNomenclature.setInvoiceName(dto.getInvoiceName());
+                newNomenclature.setRussianName(dto.getRussianName());
+                newNomenclature.setWeight(dto.getWeight());
+                newNomenclature.setQuantity(dto.getQuantity());
+                newNomenclature.setUnit(dto.getUnit());
+                newNomenclature.setVat(dto.getVat());
+                newNomenclature.setDuty(dto.getDuty());
+                newNomenclature.setPricePerUnit(dto.getPricePerUnit());
+                newNomenclature.setTotalPrice(dto.getTotalPrice());
+                newNomenclature.setDocumentNumber(dto.getDocumentNumber());
+
+                nomenclatureRepository.save(newNomenclature);
+                System.out.println("Добавлена новая номенклатура: " + dto.getArticle() +
+                        " (документ " + dto.getDocumentNumber() + ")");
+            }
+        }
+    }
 }
+
