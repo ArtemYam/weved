@@ -6,12 +6,10 @@ import org.springframework.transaction.annotation.Transactional;
 import weved.weved.dto.NomenclatureDto;
 import weved.weved.dto.OrderRequest;
 import weved.weved.entity.Document;
-import weved.weved.entity.Order;
 import weved.weved.entity.OrderHeader;
 import weved.weved.entity.OrderItem;
 import weved.weved.repository.OrderHeaderRepository;
 import weved.weved.repository.OrderItemRepository;
-import weved.weved.repository.OrderRepository;
 
 @Service
 public class OrderService {
@@ -23,24 +21,46 @@ public class OrderService {
 
     @Transactional
     public void saveOrder(OrderRequest request) {
-        // 1. Проверяем документ
         if (request.getDocument() == null) {
             throw new IllegalArgumentException("Документ не может быть null");
         }
 
-        // 2. Сохраняем заголовок заказа
-        OrderHeader header = mapToHeader(request.getDocument());
-        if (isHeaderComplete(header)) {
-            headerRepository.save(header);
+        Document doc = request.getDocument();
+        String docNumber = doc.getDocumentNumber();
+
+        // 1. Проверяем, существует ли заголовок с таким documentNumber
+        OrderHeader existingHeader = headerRepository.findByDocumentNumber(docNumber);
+
+        OrderHeader header;
+        if (existingHeader != null) {
+            // Обновляем существующий заголовок
+            header = existingHeader;
+            header.setCreatedAt(doc.getCreatedAt());
+            header.setManager(doc.getManager());
+            header.setStatus(doc.getStatus());
         } else {
+            // Создаём новый
+            header = mapToHeader(doc);
+        }
+
+        if (!isHeaderComplete(header)) {
             throw new IllegalArgumentException("Не все обязательные поля документа заполнены");
         }
 
-        // 3. Сохраняем позиции номенклатуры
+        headerRepository.save(header); // Сохраняем (обновление или вставка)
+
+        // 2. Удаляем все старые позиции для этого documentNumber
+        itemRepository.deleteByDocumentNumber(docNumber);
+
+        // 3. Сохраняем новые позиции из запроса
         for (NomenclatureDto nomen : request.getNomenclatures()) {
+            System.out.println("Проверяем позицию: ...");
             if (isItemComplete(nomen)) {
-                OrderItem item = mapToItem(nomen, header.getDocumentNumber());
+                OrderItem item = mapToItem(nomen, docNumber);
                 itemRepository.save(item);
+                System.out.println("Позиция сохранена: ID=" + item.getId());
+            } else {
+                System.out.println("Позиция пропущена...");
             }
         }
     }
@@ -79,10 +99,10 @@ public class OrderService {
     }
 
     private boolean isItemComplete(NomenclatureDto nomen) {
-        return nomen.getArticle() != null && !nomen.getArticle().isEmpty()
-                && nomen.getTnvedCode() != null && !nomen.getTnvedCode().isEmpty()
-                && nomen.getInvoiceName() != null && !nomen.getInvoiceName().isEmpty()
-                && nomen.getQuantity() != null;
+        return nomen.getArticle() != null ||
+                nomen.getTnvedCode() != null ||
+                nomen.getInvoiceName() != null ||
+                nomen.getQuantity() != null;
     }
 }
 
