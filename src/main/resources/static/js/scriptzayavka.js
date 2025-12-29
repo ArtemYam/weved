@@ -155,6 +155,66 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
 
+
+                                // ОБРАБОТКА СОХРАНЕНИЯ ЗАЯВКИ
+
+    document.getElementById('saveOrder').addEventListener('click', async function() {
+        try {
+            // Собираем данные формы
+            const documentData = {
+                documentNumber: document.getElementById('number').value,
+                createdAt: document.getElementById('date').value,
+                status: document.getElementById('status').value,
+                manager: document.getElementById('manager').value,
+                // Добавьте остальные поля из формы по аналогии
+            };
+
+            // Собираем номенклатуру из таблицы
+            const nomenclatures = [];
+            const rows = document.querySelectorAll('#itemsTbody .item-row');
+            rows.forEach(row => {
+                const inputs = row.querySelectorAll('input');
+                nomenclatures.push({
+                    article: inputs[1].value,
+                    tnvedCode: inputs[2].value,
+                    invoiceName: inputs[3].value,
+                    russianName: inputs[4].value,
+                    weight: parseFloat(inputs[5].value) || null,
+                    quantity: parseInt(inputs[6].value) || null,
+                    unit: inputs[7].value,
+                    vat: inputs[8].value,
+                    duty: inputs[9].value,
+                    pricePerUnit: parseFloat(inputs[10].value) || null,
+                    totalPrice: parseFloat(inputs[11].value) || null
+                });
+            });
+
+            // Отправляем на сервер
+            const response = await fetch('/api/orders/save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    document: documentData,
+                    nomenclatures: nomenclatures
+                })
+            });
+
+            if (response.ok) {
+                alert('Документ сохранён!');
+            } else {
+                alert('Ошибка сохранения: ' + response.statusText);
+            }
+        } catch (error) {
+            console.error('Ошибка:', error);
+            alert('Произошла ошибка: ' + error.message);
+        }
+    });
+
+
+
+
     // Запускаем загрузку
     loadData();
     loadManagers();
