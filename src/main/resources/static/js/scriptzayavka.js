@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 1. Получаем documentNumber из URL
     const urlParams = new URLSearchParams(window.location.search);
     const documentNumber = urlParams.get('documentNumber');
+    const managerSelect = document.getElementById('manager');
 
     if (!documentNumber) {
         alert('Не указан номер документа!');
@@ -10,6 +11,36 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Отображаем номер в заголовке
     document.getElementById('docNumberDisplay').textContent = documentNumber;
+
+    // 1. Загружаем менеджеров
+    async function loadManagers() {
+        try {
+            const response = await fetch('/api/users/managers');
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+
+            const managers = await response.json();
+            managerSelect.innerHTML = '<option value="">— Выберите менеджера —</option>';
+
+            managers.forEach(manager => {
+                const option = document.createElement('option');
+                option.value = `${manager.username} ${manager.surname}`;
+                option.textContent = `${manager.username} ${manager.surname}`;
+                managerSelect.appendChild(option);
+            });
+
+            // Обработчик: срабатывает ТОЛЬКО при выборе менеджера
+            managerSelect.addEventListener('change', function() {
+                selectedManager = this.value;
+                console.log('Менеджер выбран:', selectedManager);
+
+            });
+
+        } catch (error) {
+            console.error('Ошибка загрузки менеджеров:', error.message);
+            managerSelect.innerHTML += '<option value="">Ошибка загрузки</option>';
+        }
+    }
 
     // 2. Запрашиваем данные с бэкенда
     async function loadData() {
@@ -123,6 +154,8 @@ document.addEventListener('DOMContentLoaded', function() {
         return d.toISOString().split('T')[0];
     }
 
+
     // Запускаем загрузку
     loadData();
+    loadManagers();
 });
