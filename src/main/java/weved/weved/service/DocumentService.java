@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import weved.weved.entity.Document;
 import weved.weved.repository.DocumentRepository;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Service
 @Transactional
@@ -16,7 +16,7 @@ public class DocumentService {
     private DocumentRepository documentRepository;
 
     @Transactional
-    public Document saveDocument(String documentNumber, LocalDate createdAt,
+    public Document saveDocument(String documentNumber, LocalDateTime createdAt,
                                  String manager, String status) {
 
         Document newDoc = new Document();

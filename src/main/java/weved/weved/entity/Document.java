@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "documents")
@@ -18,7 +19,7 @@ public class Document {
     private String documentNumber; // Исправлено: было 'number'
 
     @Column(name = "created_at", nullable = false)
-    private LocalDate createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "manager", nullable = false)
     private String manager;

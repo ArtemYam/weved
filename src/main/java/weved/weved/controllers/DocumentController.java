@@ -59,7 +59,7 @@ public class DocumentController {
     @PostMapping("/save")
     public ResponseEntity<?> saveDocument(@RequestBody DocumentRequest request) {
         try {
-            LocalDate createdAt = LocalDate.parse(request.getCreatedAt());  // Работает для "2025-12-26"
+            LocalDateTime  createdAt = LocalDateTime .parse(request.getCreatedAt());  // Работает для "2025-12-26"
             String manager = request.getManager();  // ← Получаем строку "имя фамилия"
             String status= request.getStatus();
 

@@ -160,16 +160,31 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('saveOrder').addEventListener('click', async function() {
         try {
-            // Собираем данные формы
+            // 1. Получаем значение даты из поля формы
+            const dateInputValue = document.getElementById('date').value;
+
+            if (!dateInputValue) {
+                alert('Укажите дату!');
+                return;
+            }
+
+            // 2. Формируем createdAt в формате ISO 8601
+            // Вариант 1: Начало дня (как в вашем примере)
+            const createdAt = dateInputValue + "T00:00:00";
+
+            // Вариант 2: Текущее время (как new Date().toISOString())
+            // const createdAt = new Date(dateInputValue).toISOString();
+
+            // 3. Собираем данные формы
             const documentData = {
                 documentNumber: document.getElementById('number').value,
-                createdAt: document.getElementById('date').value,
+                createdAt: createdAt,                    // ← Теперь переменная определена
                 status: document.getElementById('status').value,
                 manager: document.getElementById('manager').value,
                 // Добавьте остальные поля из формы по аналогии
             };
 
-            // Собираем номенклатуру из таблицы
+            // 4. Собираем номенклатуру из таблицы
             const nomenclatures = [];
             const rows = document.querySelectorAll('#itemsTbody .item-row');
             rows.forEach(row => {
@@ -189,7 +204,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             });
 
-            // Отправляем на сервер
+            // 5. Отправляем на сервер
             const response = await fetch('/api/orders/save', {
                 method: 'POST',
                 headers: {
@@ -211,6 +226,7 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('Произошла ошибка: ' + error.message);
         }
     });
+
 
 
 

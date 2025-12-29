@@ -157,10 +157,11 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const documentData = {
                 documentNumber: documentNumber,
-                createdAt: dateInput.value,
+                createdAt: new Date().toISOString(),
                 manager: selectedManager,
                 status: selectedStatus
             };
+
 
             const payload = {
                 document: documentData,
