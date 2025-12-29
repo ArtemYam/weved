@@ -30,6 +30,17 @@ async function loadActiveOrders() {
                     <td>${order.status}</td>
                 `;
 
+                // 1. Добавляем обработчик двойного клика
+                row.addEventListener('dblclick', function() {
+                    const documentNumber = order.documentNumber;
+                    if (documentNumber) {
+                        // 2. Переходим на страницу zayavka с параметром
+                        window.location.href = `zayavka.html?documentNumber=${encodeURIComponent(documentNumber)}`;
+                    } else {
+                        alert('Не удалось получить номер заявки.');
+                    }
+                });
+
                 tbody.appendChild(row);
             });
         }
