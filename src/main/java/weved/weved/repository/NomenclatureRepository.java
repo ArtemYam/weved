@@ -9,4 +9,5 @@ public interface NomenclatureRepository extends JpaRepository<Nomenclature, Long
 
     // Новый метод: найти номенклатуру по документу и артикулу
     Nomenclature findByDocumentNumberAndArticle(String documentNumber, String article);
+
 }

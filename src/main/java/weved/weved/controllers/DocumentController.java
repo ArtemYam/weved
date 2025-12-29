@@ -1,15 +1,20 @@
 package weved.weved.controllers;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import weved.weved.dto.DocumentRequest;
 import weved.weved.entity.Document;
+import weved.weved.entity.Nomenclature;
+import weved.weved.repository.DocumentRepository;
+import weved.weved.repository.NomenclatureRepository;
 import weved.weved.service.DocumentService;
 
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import static java.util.Collections.singletonMap;
 
@@ -17,6 +22,12 @@ import static java.util.Collections.singletonMap;
 @RestController
 @RequestMapping("/api/documents")
 public class DocumentController {
+
+    @Autowired
+    private DocumentRepository documentRepository;
+
+    @Autowired
+    private NomenclatureRepository nomenclatureRepository;
 
     private final DocumentService documentService;
 
@@ -65,5 +76,20 @@ public class DocumentController {
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(singletonMap("error", e.getMessage()));
         }
+    }
+
+    @GetMapping("/documents/{documentNumber}")
+    public ResponseEntity<Document> getDocument(@PathVariable String documentNumber) {
+        return documentRepository.findByDocumentNumber(documentNumber)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/nomenclatures/{documentNumber}")
+    public ResponseEntity<List<Nomenclature>> getNomenclatures(@PathVariable String documentNumber) {
+        List<Nomenclature> noms = nomenclatureRepository.findByDocumentNumber(documentNumber);
+        return noms.isEmpty()
+                ? ResponseEntity.notFound().build()
+                : ResponseEntity.ok(noms);
     }
 }

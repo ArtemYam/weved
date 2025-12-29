@@ -1,0 +1,128 @@
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. Получаем documentNumber из URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const documentNumber = urlParams.get('documentNumber');
+
+    if (!documentNumber) {
+        alert('Не указан номер документа!');
+        return;
+    }
+
+    // Отображаем номер в заголовке
+    document.getElementById('docNumberDisplay').textContent = documentNumber;
+
+    // 2. Запрашиваем данные с бэкенда
+    async function loadData() {
+        try {
+            // Запрос: документ + номенклатура
+            const [docResponse, nomenResponse] = await Promise.all([
+                fetch(`/api/documents/documents/${documentNumber}`),
+                fetch(`/api/documents/nomenclatures/${documentNumber}`)
+            ]);
+
+            if (!docResponse.ok || !nomenResponse.ok) {
+                throw new Error('Ошибка загрузки данных');
+            }
+
+            const documentData = await docResponse.json();
+            const nomenclatures = await nomenResponse.json();
+
+            // 3. Заполняем поля формы
+            fillFormFields(documentData);
+            fillNomenclatureTable(nomenclatures);
+
+        } catch (error) {
+            console.error('Ошибка загрузки:', error);
+            alert('Не удалось загрузить данные: ' + error.message);
+        }
+    }
+
+    // 4. Заполняем поля формы
+    function fillFormFields(data) {
+        // Блок "Информация"
+        document.getElementById('number').value = data.documentNumber || '';
+        document.getElementById('date').value = formatDate(data.createdAt) || '';
+        document.getElementById('status').value = data.status || '';
+        document.getElementById('manager').value = data.manager || '';
+
+        // Блок "Контракт"
+        document.getElementById('trademark-contract').value = data.trademark || '';
+        document.getElementById('contractType').value = data.contractType || '';
+        document.getElementById('currency').value = data.currency || '';
+        document.getElementById('contactName').value = data.contactName || '';
+        document.getElementById('email').value = data.email || '';
+        document.getElementById('phone').value = data.phone || '';
+
+
+        // Блок "НАШ Контракт"
+        document.getElementById('trademark').value = data.ourTrademark || '';
+        document.getElementById('contractType-info-contract').value = data.ourContractType || '';
+        document.getElementById('currency-info-contract').value = data.ourCurrency || '';
+        document.getElementById('contactName-info-contract').value = data.ourContactName || '';
+        document.getElementById('email-info-contract').value = data.ourEmail || '';
+        document.getElementById('phone-info-contract').value = data.ourPhone || '';
+
+
+        // Блок "Грузоотправитель"
+        document.getElementById('shipper').value = data.shipper || '';
+        document.getElementById('actualShipper').value = data.actualShipper || '';
+
+
+        // Блок "Логистика"
+        document.getElementById('shippingRate').value = data.shippingRate || '';
+        document.getElementById('volumeM3').value = data.volumeM3 || '';
+        document.getElementById('netWeight').value = data.netWeight || '';
+        document.getElementById('grossWeight').value = data.grossWeight || '';
+        document.getElementById('packagingType').value = data.packagingType || '';
+        document.getElementById('transportType').value = data.transportType || '';
+        document.getElementById('deliveryTerms').value = data.deliveryTerms || '';
+
+        // Особые условия (пример)
+        // document.getElementById('hazardClass').value = data.hazardClass || '';
+        // document.getElementById('tempMode').value = data.tempMode || '';
+        // document.getElementById('battery').value = data.battery || '';
+        // document.getElementById('insurance').value = data.insurance || '';
+
+
+        // Стоимость перевозки
+        document.getElementById('shippingCurrency').value = data.shippingCurrency || '';
+    }
+
+    // 5. Заполняем таблицу номенклатуры
+    function fillNomenclatureTable(items) {
+        const tbody = document.getElementById('itemsTbody');
+        tbody.innerHTML = ''; // Очищаем
+
+        items.forEach(item => {
+            const row = document.createElement('tr');
+            row.className = 'item-row';
+
+            row.innerHTML = `
+                <td><input type="checkbox" class="row-checkbox"></td>
+                <td><input type="text" class="input-text" value="${item.article || ''}" readonly></td>
+                <td><input type="text" class="input-text" value="${item.tnvedCode || ''}" readonly></td>
+                <td><input type="text" class="input-text" value="${item.invoiceName || ''}" readonly></td>
+                <td><input type="text" class="input-text" value="${item.russianName || ''}" readonly></td>
+                <td><input type="number" class="input-text" value="${item.weight != null ? item.weight : ''}" readonly></td>
+                <td><input type="number" class="input-text" value="${item.quantity != null ? item.quantity : ''}" readonly></td>
+                <td><input type="text" class="input-text" value="${item.unit || ''}" readonly></td>
+                <td><input type="text" class="input-text" value="${item.vat || ''}" readonly></td>
+                <td><input type="text" class="input-text" value="${item.duty || ''}" readonly></td>
+                <td><input type="number" class="input-text" value="${item.pricePerUnit != null ? item.pricePerUnit : ''}" readonly></td>
+                <td><input type="number" class="input-text" value="${item.totalPrice != null ? item.totalPrice : ''}" readonly></td>
+            `;
+
+            tbody.appendChild(row);
+        });
+    }
+
+    // 6. Форматируем дату (YYYY-MM-DD)
+    function formatDate(dateStr) {
+        if (!dateStr) return '';
+        const d = new Date(dateStr);
+        return d.toISOString().split('T')[0];
+    }
+
+    // Запускаем загрузку
+    loadData();
+});

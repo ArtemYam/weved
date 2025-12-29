@@ -470,4 +470,22 @@ document.addEventListener('DOMContentLoaded', function() {
             closeModal();
         }
     });
+
+                                    // СОЗДАНИЕ ЗАЯВКИ
+
+    const createZayavkaBtn = document.getElementById('createZayavkaBtn');
+
+    if (createZayavkaBtn) {
+        createZayavkaBtn.addEventListener('click', function() {
+            if (!documentNumber) {
+                alert('Номер документа не сформирован! Подождите загрузки...');
+                return;
+            }
+
+            // Переходим на страницу заявки с параметром documentNumber
+            window.location.href = `zayavka.html?documentNumber=${documentNumber}`;
+        });
+    } else {
+        console.warn('Кнопка #createZayavkaBtn не найдена. Проверьте HTML.');
+    }
 });
