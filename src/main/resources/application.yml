@@ -21,4 +21,9 @@ spring:
       password: admin
       roles: ADMIN
 
+#УДАЛИТЬ ПРИ РЕЛИЗЕ
+server:
+  address: 192.168.212.153
+  port: 8080
+
 

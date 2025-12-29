@@ -1,9 +1,14 @@
 package weved.weved.service;
 
+import jakarta.transaction.Transactional;
 import org.apache.poi.ss.usermodel.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import weved.weved.entity.Item;
+import weved.weved.entity.Document;
+import weved.weved.entity.Nomenclature;
+import weved.weved.repository.DocumentRepository;
+import weved.weved.repository.NomenclatureRepository;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,6 +18,12 @@ import java.util.Map;
 
 @Service
 public class ExcelService {
+
+    @Autowired
+    private NomenclatureRepository nomenclatureRepository;
+
+    @Autowired
+    private DocumentRepository documentRepository;
 
     // Сопоставление возможных названий столбцов Excel с полями модели
     private static final Map<String, String> COLUMN_MAPPING = new HashMap<>();
@@ -32,8 +43,8 @@ public class ExcelService {
     }
 
 
-    public List<Item> processExcel(MultipartFile file) throws IOException {
-        List<Item> items = new ArrayList<>();
+    public List<Nomenclature> processExcel(MultipartFile file) throws IOException {
+        List<Nomenclature> nomenclatures = new ArrayList<>();
         Workbook workbook = WorkbookFactory.create(file.getInputStream());
         Sheet sheet = workbook.getSheetAt(0);
 
@@ -53,7 +64,7 @@ public class ExcelService {
             Row row = sheet.getRow(i);
             if (row == null) continue;
 
-            Item item = new Item();
+            Nomenclature nomenclature = new Nomenclature();
 
             for (int colIndex = 0; colIndex <= row.getLastCellNum(); colIndex++) {
                 Cell cell = row.getCell(colIndex);
@@ -62,52 +73,52 @@ public class ExcelService {
 
                 if ("unknown".equals(fieldName)) continue;
 
-                setFieldValue(item, fieldName, cell);
+                setFieldValue(nomenclature, fieldName, cell);
             }
 
-            items.add(item);
+            nomenclatures.add(nomenclature);
         }
 
         workbook.close();
-        return items;
+        return nomenclatures;
     }
 
-    private void setFieldValue(Item item, String fieldName, Cell cell) {
+    private void setFieldValue(Nomenclature nomenclature, String fieldName, Cell cell) {
         if (cell == null) return;
 
         switch (fieldName) {
             case "article":
-                item.setArticle(getStringValue(cell));
+                nomenclature.setArticle(getStringValue(cell));
                 break;
             case "tnvedCode":
-                item.setTnvedCode(getStringValue(cell));
+                nomenclature.setTnvedCode(getStringValue(cell));
                 break;
             case "invoiceName":
-                item.setInvoiceName(getStringValue(cell));
+                nomenclature.setInvoiceName(getStringValue(cell));
                 break;
             case "russianName":
-                item.setRussianName(getStringValue(cell));
+                nomenclature.setRussianName(getStringValue(cell));
                 break;
             case "weight":
-                item.setWeight(getDoubleValue(cell));
+                nomenclature.setWeight(getDoubleValue(cell));
                 break;
             case "quantity":
-                item.setQuantity(getIntValue(cell));
+                nomenclature.setQuantity(getIntValue(cell));
                 break;
             case "unit":
-                item.setUnit(getStringValue(cell));
+                nomenclature.setUnit(getStringValue(cell));
                 break;
             case "vat":
-                item.setVat(getStringValue(cell));
+                nomenclature.setVat(getStringValue(cell));
                 break;
             case "duty":
-                item.setDuty(getStringValue(cell));
+                nomenclature.setDuty(getStringValue(cell));
                 break;
             case "pricePerUnit":
-                item.setPricePerUnit(getDoubleValue(cell));
+                nomenclature.setPricePerUnit(getDoubleValue(cell));
                 break;
             case "totalPrice":
-                item.setTotalPrice(getDoubleValue(cell));
+                nomenclature.setTotalPrice(getDoubleValue(cell));
                 break;
         }
     }
@@ -126,10 +137,18 @@ public class ExcelService {
                 ? (int) cell.getNumericCellValue() : 0;
     }
 
-//    public List<Item> getItemsByDocumentNumber(String documentNumber) {
-//        // Здесь должна быть логика получения из БД
-//        // Пример для JPA:
-////        return itemRepository.findByDocumentNumber(documentNumber);
-//    }
+    public List<Nomenclature> getNomenclatureByDocumentNumber(String documentNumber) {
+        return nomenclatureRepository.findByDocumentNumber(documentNumber);
+    }
+
+    @Transactional
+    public void saveDocument(Document data) {
+        documentRepository.save(data);
+    }
+
+    @Transactional
+    public void saveNomenclature (Nomenclature nomenclature) {
+        nomenclatureRepository.save(nomenclature);
+    }
 
 }

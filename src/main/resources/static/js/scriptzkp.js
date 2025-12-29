@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const loadFromFileBtn = document.getElementById('loadFromFileBtn');
 
 
+
     if (!numberInput) {
         console.error('Элемент #number не найден!');
         return;
@@ -104,9 +105,7 @@ document.addEventListener('DOMContentLoaded', function() {
         selectedStatus = this.value;
         console.log('Статус выбран:', selectedStatus);
     });
-    // 3. Сохраняем документ (только если есть номер И менеджер И статус)
-    async function saveDocument() {
-        // Проверяем, что номер и менеджер есть
+    async function saveDocumentWithNomenclatures() {
         if (!documentNumber) {
             alert('Номер документа не получен!');
             return;
@@ -116,43 +115,78 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         if (!selectedStatus) {
-                    alert('Пожалуйста, выберите статус!');
-                    return;
-                }
+            alert('Пожалуйста, выберите статус!');
+            return;
+        }
+
+        // Собираем номенклатуры из строк таблицы
+        const nomenclatures = [];
+        const rows = tbody.querySelectorAll('.item-row');
+
+        for (const row of rows) {
+            const inputs = row.querySelectorAll('input.input-text');
+            const article = inputs[0].value.trim();
+
+            // Пропускаем пустые строки (если артикул не заполнен)
+            if (!article) continue;
+
+            const nomenclature = {
+                article: article,
+                tnvedCode: inputs[1].value.trim(),
+                invoiceName: inputs[2].value.trim(),
+                russianName: inputs[3].value.trim(),
+                weight: parseFloat(inputs[4].value) || 0,
+                quantity: parseInt(inputs[5].value) || 0,
+                unit: inputs[6].value.trim(),
+                vat: inputs[7].value.trim(),
+                duty: inputs[8].value.trim(),
+                pricePerUnit: parseFloat(inputs[9].value) || 0,
+                totalPrice: parseFloat(inputs[10].value) || 0,
+                documentNumber: documentNumber  // Связь с документом
+            };
+            nomenclatures.push(nomenclature);
+        }
+
+        // Проверка: есть ли номенклатуры
+        if (nomenclatures.length === 0) {
+            alert('Добавьте хотя бы одну позицию номенклатуры!');
+            return;
+        }
 
         try {
-            const saveResponse = await fetch(API.SAVE, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    documentNumber: documentNumber,
-                    createdAt: dateInput.value,
-                    manager: selectedManager,  // ← Отправляем ФИО менеджера
-                    status: selectedStatus
-                })
-            });
-
-            if (!saveResponse.ok) {
-                const errorData = await saveResponse.json();
-                throw new Error(errorData.error || `HTTP ошибка: ${saveResponse.status}`);
-            }
-
-            console.log('Документ сохранён:', {
-                number: documentNumber,
-                date: dateInput.value,
+            // Данные документа
+            const documentData = {
+                documentNumber: documentNumber,
+                createdAt: dateInput.value,
                 manager: selectedManager,
                 status: selectedStatus
+            };
+
+            // Полный payload
+            const payload = {
+                document: documentData,
+                nomenclatures: nomenclatures
+            };
+
+            const response = await fetch('/api/save-document', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
             });
-            alert('Документ успешно сохранён!');
 
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || `HTTP ошибка: ${response.status}`);
+            }
 
+            alert('Документ и номенклатуры успешно сохранены!');
+            console.log('Сохранено:', payload);
         } catch (error) {
             console.error('Ошибка сохранения:', error.message);
             alert('Произошла ошибка: ' + error.message);
         }
     }
+
 
     // Запускаем загрузку менеджеров и получение номера при старте
     loadManagers();
@@ -161,10 +195,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Кнопка для сохранения
     const saveBtn = document.getElementById('saveBtn');
     if (saveBtn) {
-        saveBtn.addEventListener('click', saveDocument);
+        saveBtn.addEventListener('click', saveDocumentWithNomenclatures);
     } else {
-        console.warn('Кнопка сохранения (#saveBtn) не найдена. Добавьте её в HTML.');
+        console.warn('Кнопка #saveBtn не найдена. Добавьте её в HTML.');
     }
+
 
 
 
@@ -381,7 +416,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     tbody.innerHTML = '';
 
                     // 3. Заполняем таблицу данными
-                    data.items.forEach(item => {
+                    data.nomenclatures.forEach(nomenclature => {
                         const newRow = document.createElement('tr');
                         newRow.className = 'item-row';
 
@@ -405,7 +440,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             const input = document.createElement('input');
                             input.type = 'text';
                             input.className = 'input-text';
-                            input.value = item[field] || '';
+                            input.value = nomenclature[field] || '';
                             cell.appendChild(input);
                             newRow.appendChild(cell);
                         });
@@ -413,6 +448,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         tbody.appendChild(newRow);
                         addCheckboxHandler(checkbox);
                     });
+
 
                     updateSelectAllState();
                     alert('Данные загружены и отображены!');

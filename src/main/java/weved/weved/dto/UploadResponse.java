@@ -1,23 +1,23 @@
 package weved.weved.dto;
 
 import lombok.Data;
-import weved.weved.entity.Item;
+import weved.weved.entity.Nomenclature;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
 public class UploadResponse {
-    private List<Item> items;
+    private List<Nomenclature> nomenclatures;
     private String message;
 
-    public UploadResponse(List<Item> items) {
-        this.items = items;
+    public UploadResponse(List<Nomenclature> nomenclatures) {
+        this.nomenclatures = nomenclatures;
         this.message = "Успешно";
     }
 
     public UploadResponse(String message) {
-        this.items = new ArrayList<>();
+        this.nomenclatures = new ArrayList<>();
         this.message = message;
     }
 }
