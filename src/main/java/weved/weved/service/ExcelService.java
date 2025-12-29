@@ -12,10 +12,8 @@ import weved.weved.repository.DocumentRepository;
 import weved.weved.repository.NomenclatureRepository;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ExcelService {
@@ -151,56 +149,84 @@ public class ExcelService {
 
     @Transactional
     public void saveNomenclatures(List<NomenclatureDto> dtoList) {
+        if (dtoList.isEmpty()) {
+            return; // Ничего не делаем, если список пуст
+        }
+
+        // Получаем documentNumber из первого элемента (предполагаем, что все элементы имеют одинаковый documentNumber)
+        String documentNumber = dtoList.get(0).getDocumentNumber();
+
+        // 1. Получаем все существующие записи для этого documentNumber
+        List<Nomenclature> existingRecords = nomenclatureRepository.findByDocumentNumber(documentNumber);
+
+        // Создаём множество артикулов из переданных DTO
+        Set<String> keptArticles = dtoList.stream()
+                .filter(dto -> !dto.isDeleted()) // Учитываем только не удалённые строки
+                .map(NomenclatureDto::getArticle)
+                .collect(Collectors.toSet());
+
+        // 2. Удаляем все записи, которых нет в keptArticles
+        for (Nomenclature record : existingRecords) {
+            if (!keptArticles.contains(record.getArticle())) {
+                nomenclatureRepository.delete(record);
+                System.out.println("Удалена номенклатура: " + record.getArticle() +
+                        " (документ " + documentNumber + ")");
+            }
+        }
+
+        // 3. Обрабатываем оставшиеся записи (обновление/создание)
         for (NomenclatureDto dto : dtoList) {
+            if (dto.isDeleted()) {
+                continue; // Уже удалены выше
+            }
+
             Nomenclature existing = nomenclatureRepository
                     .findByDocumentNumberAndArticle(dto.getDocumentNumber(), dto.getArticle());
 
-            if (dto.isDeleted()) {
-                // Если строка отмечена на удаление
-                if (existing != null) {
-                    nomenclatureRepository.delete(existing);  // Удаляем из БД
-                    System.out.println("Удалена номенклатура: " + dto.getArticle() +
-                            " (документ " + dto.getDocumentNumber() + ")");
-                }
-                continue;  // Не сохраняем её повторно
-            }
-
             if (existing != null) {
                 // Обновляем существующую запись
-                existing.setTnvedCode(dto.getTnvedCode());
-                existing.setInvoiceName(dto.getInvoiceName());
-                existing.setRussianName(dto.getRussianName());
-                existing.setWeight(dto.getWeight());
-                existing.setQuantity(dto.getQuantity());
-                existing.setUnit(dto.getUnit());
-                existing.setVat(dto.getVat());
-                existing.setDuty(dto.getDuty());
-                existing.setPricePerUnit(dto.getPricePerUnit());
-                existing.setTotalPrice(dto.getTotalPrice());
-
+                updateNomenclatureFromDto(existing, dto);
                 System.out.println("Обновлена номенклатура: " + dto.getArticle() +
                         " (документ " + dto.getDocumentNumber() + ")");
             } else {
                 // Создаём новую запись
-                Nomenclature newNomenclature = new Nomenclature();
-                newNomenclature.setArticle(dto.getArticle());
-                newNomenclature.setTnvedCode(dto.getTnvedCode());
-                newNomenclature.setInvoiceName(dto.getInvoiceName());
-                newNomenclature.setRussianName(dto.getRussianName());
-                newNomenclature.setWeight(dto.getWeight());
-                newNomenclature.setQuantity(dto.getQuantity());
-                newNomenclature.setUnit(dto.getUnit());
-                newNomenclature.setVat(dto.getVat());
-                newNomenclature.setDuty(dto.getDuty());
-                newNomenclature.setPricePerUnit(dto.getPricePerUnit());
-                newNomenclature.setTotalPrice(dto.getTotalPrice());
-                newNomenclature.setDocumentNumber(dto.getDocumentNumber());
-
+                Nomenclature newNomenclature = createNomenclatureFromDto(dto);
                 nomenclatureRepository.save(newNomenclature);
                 System.out.println("Добавлена новая номенклатура: " + dto.getArticle() +
                         " (документ " + dto.getDocumentNumber() + ")");
             }
         }
     }
+
+    private void updateNomenclatureFromDto(Nomenclature entity, NomenclatureDto dto) {
+        entity.setTnvedCode(dto.getTnvedCode());
+        entity.setInvoiceName(dto.getInvoiceName());
+        entity.setRussianName(dto.getRussianName());
+        entity.setWeight(dto.getWeight());
+        entity.setQuantity(dto.getQuantity());
+        entity.setUnit(dto.getUnit());
+        entity.setVat(dto.getVat());
+        entity.setDuty(dto.getDuty());
+        entity.setPricePerUnit(dto.getPricePerUnit());
+        entity.setTotalPrice(dto.getTotalPrice());
+    }
+
+    private Nomenclature createNomenclatureFromDto(NomenclatureDto dto) {
+        Nomenclature nomenclature = new Nomenclature();
+        nomenclature.setArticle(dto.getArticle());
+        nomenclature.setTnvedCode(dto.getTnvedCode());
+        nomenclature.setInvoiceName(dto.getInvoiceName());
+        nomenclature.setRussianName(dto.getRussianName());
+        nomenclature.setWeight(dto.getWeight());
+        nomenclature.setQuantity(dto.getQuantity());
+        nomenclature.setUnit(dto.getUnit());
+        nomenclature.setVat(dto.getVat());
+        nomenclature.setDuty(dto.getDuty());
+        nomenclature.setPricePerUnit(dto.getPricePerUnit());
+        nomenclature.setTotalPrice(dto.getTotalPrice());
+        nomenclature.setDocumentNumber(dto.getDocumentNumber());
+        return nomenclature;
+    }
+
 }
 
