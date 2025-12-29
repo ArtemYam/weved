@@ -4,12 +4,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import weved.weved.dto.NomenclatureDto;
+import weved.weved.dto.OrderHeaderDto;
 import weved.weved.dto.OrderRequest;
 import weved.weved.entity.Document;
 import weved.weved.entity.OrderHeader;
 import weved.weved.entity.OrderItem;
 import weved.weved.repository.OrderHeaderRepository;
 import weved.weved.repository.OrderItemRepository;
+
+import java.util.List;
 
 @Service
 public class OrderService {
@@ -63,6 +66,19 @@ public class OrderService {
                 System.out.println("Позиция пропущена...");
             }
         }
+    }
+
+    public List<OrderHeaderDto> getLatestActiveOrders() {
+        List<OrderHeader> headers = headerRepository.findLatestActiveOrders();
+
+        return headers.stream()
+                .map(h -> new OrderHeaderDto(
+                        h.getDocumentNumber(),
+                        h.getCreatedAt(),
+                        h.getManager(),
+                        h.getStatus()
+                ))
+                .toList();
     }
 
     private OrderHeader mapToHeader(Document doc) {

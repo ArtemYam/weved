@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Система управления</title>
     <link rel="stylesheet" href="/css/styles.css">
-    <script src="/js/script.js" defer></script>
+    <script src="/js/scriptindex.js" defer></script>
 </head>
 <body>
 <div class="container">
@@ -28,13 +28,34 @@
         <a href="zaproskp.html" class="button-tile">Отчет по заявкам</a>
     </div>
 
-    <!-- Другие секции страницы -->
+
     <div class="section-card" aria-labelledby="section-title-applications">
         <h2 id="section-title-applications" class="section-title">Заявки</h2>
         <div class="section-content" aria-describedby="section-title-applications">
-            <p>Загружаются активные заявки...</p>
+            <table id="ordersTable" class="orders-table">
+                <thead>
+                <tr>
+                    <th>Номер заявки</th>
+                    <th>Дата создания</th>
+                    <th>Менеджер</th>
+                    <th>Статус</th>
+                </tr>
+                </thead>
+                <tbody>
+                <!-- Строки будут добавлены JS -->
+                </tbody>
+            </table>
+            <p id="loadingMessage">Загружаются активные заявки...</p>
         </div>
     </div>
+
+    <!-- Другие секции страницы -->
+<!--    <div class="section-card" aria-labelledby="section-title-applications">-->
+<!--        <h2 id="section-title-applications" class="section-title">Заявки</h2>-->
+<!--        <div class="section-content" aria-describedby="section-title-applications">-->
+<!--            <p>Загружаются активные заявки...</p>-->
+<!--        </div>-->
+<!--    </div>-->
 </div>
 </body>
 </html>
