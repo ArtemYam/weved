@@ -4,27 +4,36 @@
     <meta charset="UTF-8" />
     <title>Все запросы</title>
     <link rel="stylesheet" href="/css/styles.css" />
-    <script src="/js/script.js"></script>
+    <script src="/js/scriptindex.js"></script>
 </head>
 
 <body>
     <div class="container">
-    <a type="button" class="btn-action" href="zaproskp.html">Создать заявку</a>
-    <a type="button" id="loadFromFileBtn">Создать из файла</a>
-    <a type="button" id="loadFromFileBtn">Отчет</a>
-    <a type="button" id="loadFromFileBtn">Посмотреть все заявки</a>
-    <a type="button" id="loadFromFileBtn">Что еще ?</a>
-    <a type="button" id="loadFromFileBtn">Что еще ?</a>
-        
+    <a href="index.html" class="button-tile">Главная</a>
+    <a type="button" class="button-tile" href="zaproskp.html">Создать заявку</a>
+    <a type="button" id="" class="button-tile">Отчет</a>
+
+
         <!-- Окно "Запросы" -->
-      <div class="section-card" aria-labelledby="section-title-applications">
-        <h2 id="section-title-applications" class="section-title">Заявки</h2>
-        <div class="section-content" aria-describedby="section-title-applications">
-            <!-- Здесь будет динамический контент (активные заявки) -->
-            <p>Загружаются активные заявки...</p>
+        <div class="section-card" aria-labelledby="section-title-applications">
+            <h2 id="section-title-applications" class="section-title">Активные Заявки</h2>
+            <div class="section-content" aria-describedby="section-title-applications">
+                <table id="ordersTable" class="orders-table">
+                    <thead>
+                    <tr>
+                        <th>Номер заявки</th>
+                        <th>Дата создания</th>
+                        <th>Менеджер</th>
+                        <th>Статус</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <!-- Строки будут добавлены JS -->
+                    </tbody>
+                </table>
+                <p id="loadingMessage">Загружаются активные заявки...</p>
+            </div>
         </div>
-    </div>
-        
 </div>
     
 

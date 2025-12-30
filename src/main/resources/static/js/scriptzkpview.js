@@ -1,200 +1,271 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // 1. Получаем documentNumber из URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const documentNumber = urlParams.get('documentNumber');
+    // Получение элементов
+    const numberInput = document.getElementById('number');
+    const dateInput = document.getElementById('date');
     const managerSelect = document.getElementById('manager');
-    const selectAllCheckbox = document.getElementById("selectAll");
-    const addRowBtn = document.getElementById("addRowBtn");
-    const tbody = document.getElementById("itemsTbody");
-    const deleteRowBtn = document.getElementById("deleteRowBtn");
+    const statusSelect = document.getElementById('status');
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const addRowBtn = document.getElementById('addRowBtn');
+    const deleteRowBtn = document.getElementById('deleteRowBtn');
+    const tbody = document.getElementById('itemsTbody');
     const loadFromFileBtn = document.getElementById('loadFromFileBtn');
 
-    if (!documentNumber) {
-        alert('Не указан номер документа!');
+
+
+    // Проверка критических элементов
+    if (!numberInput || !dateInput || !managerSelect || !statusSelect) {
+        console.error('Критические элементы формы не найдены!');
         return;
     }
 
-    // Отображаем номер в заголовке
-    document.getElementById('docNumberDisplay').textContent = documentNumber;
+    // Параметры
+    const urlParams = new URLSearchParams(window.location.search);
+    const docNumberFromUrl = urlParams.get('documentNumber');
+    let documentNumber = null; // Инициализируем как null
 
-    function loadActiveOrders() {
-        fetch('/api/orders/active')
-            .then(response => response.json())
-            .then(data => {
-                console.log('Полученные заказы:', data);
-                populateOrdersTable(data);
-            })
-            .catch(error => console.error('Ошибка загрузки заказов:', error));
+
+    const API = {
+        NEXT_NUMBER: '/api/documents/next-number',
+        SAVE: '/api/documents/save'
+    };
+
+    // Вспомогательные функции
+    function formatDate(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
     }
 
-    function populateOrdersTable(orders) {
-        const tbody = document.getElementById('itemsTbody');
-        tbody.innerHTML = ''; // Очищаем таблицу
-
-        orders.forEach(order => {
-            const row = document.createElement('tr');
-
-            row.innerHTML = `
-                <td><input type="checkbox"></td>
-                <td>${order.documentNumber}</td>
-                <td>${formatDate(order.createdAt)}</td>
-                <td>${order.manager}</td>
-                <td>${order.status}</td>
-            `;
-
-            tbody.appendChild(row);
-        });
-    }
-
-    function formatDate(dateString) {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('ru-RU') + ' ' + date.toLocaleTimeString('ru-RU');
-    }
-
-    // 1. Загружаем менеджеров
     async function loadManagers() {
         try {
             const response = await fetch('/api/users/managers');
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
 
             const managers = await response.json();
             managerSelect.innerHTML = '<option value="">— Выберите менеджера —</option>';
 
             managers.forEach(manager => {
                 const option = document.createElement('option');
+                // Используем полное имя как value
                 option.value = `${manager.username} ${manager.surname}`;
                 option.textContent = `${manager.username} ${manager.surname}`;
                 managerSelect.appendChild(option);
             });
 
-            // Обработчик: срабатывает ТОЛЬКО при выборе менеджера
-            managerSelect.addEventListener('change', function() {
-                selectedManager = this.value;
-                console.log('Менеджер выбран:', selectedManager);
-
+            managerSelect.addEventListener('change', () => {
+                console.log('Менеджер выбран:', managerSelect.value);
             });
-
         } catch (error) {
             console.error('Ошибка загрузки менеджеров:', error.message);
             managerSelect.innerHTML += '<option value="">Ошибка загрузки</option>';
         }
     }
 
-    // 2. Запрашиваем данные с бэкенда
-    async function loadData() {
+
+    async function fetchDocumentNumber() {
         try {
-            // Запрос: документ + номенклатура
-            const [docResponse, nomenResponse] = await Promise.all([
-                fetch(`/api/orders/header/${documentNumber}`),          // ← Новый URL
-                fetch(`/api/orders/items/${documentNumber}`)           // ← Новый URL
-            ]);
+            const response = await fetch(API.NEXT_NUMBER);
+            if (!response.ok) throw new Error(`HTTP ошибка: ${response.status}`);
 
-            if (!docResponse.ok || !nomenResponse.ok) {
-                throw new Error('Ошибка загрузки данных');
-            }
+            const data = await response.json();
+            if (!data.documentNumber) throw new Error('Сервер не вернул номер');
 
-            const documentData = await docResponse.json();
-            const nomenclatures = await nomenResponse.json();
-
-            // 3. Заполняем поля формы
-            fillFormFields(documentData);
-            fillNomenclatureTable(nomenclatures);
-
+            documentNumber = data.documentNumber;
+            numberInput.value = documentNumber;
+            console.log('Номер документа получен:', documentNumber);
         } catch (error) {
-            console.error('Ошибка загрузки:', error);
-            alert('Не удалось загрузить данные: ' + error.message);
+            console.error('Ошибка получения номера:', error.message);
+            alert('Не удалось получить номер документа: ' + error.message);
         }
     }
 
+    async function loadDocumentAndNomenclatures(docNum) {
+          try {
+                 const response = await fetch(`/api/documents/${docNum}/full`);
+                 if (!response.ok) throw new Error('Документ не найден');
 
-    // 4. Заполняем поля формы
-    function fillFormFields(data) {
-        // Блок "Информация"
-        document.getElementById('number').value = data.documentNumber || '';
-        document.getElementById('date').value = formatDate(data.createdAt) || '';
-        document.getElementById('status').value = data.status || '';
-        document.getElementById('manager').value = data.manager || '';
+                 const data = await response.json();
+                 const doc = data.document;
 
-        // Блок "Контракт"
-        document.getElementById('trademark-contract').value = data.trademark || '';
-        document.getElementById('contractType').value = data.contractType || '';
-        document.getElementById('currency').value = data.currency || '';
-        document.getElementById('contactName').value = data.contactName || '';
-        document.getElementById('email').value = data.email || '';
-        document.getElementById('phone').value = data.phone || '';
+                numberInput.value = doc.documentNumber;
+                dateInput.value = formatDate(new Date(doc.createdAt));
 
+                // Заполняем текстовое поле менеджером
+                managerSelect.value = doc.manager || '— Менеджер не указан —';
 
-        // Блок "НАШ Контракт"
-        document.getElementById('trademark').value = data.ourTrademark || '';
-        document.getElementById('contractType-info-contract').value = data.ourContractType || '';
-        document.getElementById('currency-info-contract').value = data.ourCurrency || '';
-        document.getElementById('contactName-info-contract').value = data.ourContactName || '';
-        document.getElementById('email-info-contract').value = data.ourEmail || '';
-        document.getElementById('phone-info-contract').value = data.ourPhone || '';
+                statusSelect.value = doc.status;
 
-
-        // Блок "Грузоотправитель"
-        document.getElementById('shipper').value = data.shipper || '';
-        document.getElementById('actualShipper').value = data.actualShipper || '';
-
-
-        // Блок "Логистика"
-        document.getElementById('shippingRate').value = data.shippingRate || '';
-        document.getElementById('volumeM3').value = data.volumeM3 || '';
-        document.getElementById('netWeight').value = data.netWeight || '';
-        document.getElementById('grossWeight').value = data.grossWeight || '';
-        document.getElementById('packagingType').value = data.packagingType || '';
-        document.getElementById('transportType').value = data.transportType || '';
-        document.getElementById('deliveryTerms').value = data.deliveryTerms || '';
-
-        // Особые условия (пример)
-        // document.getElementById('hazardClass').value = data.hazardClass || '';
-        // document.getElementById('tempMode').value = data.tempMode || '';
-        // document.getElementById('battery').value = data.battery || '';
-        // document.getElementById('insurance').value = data.insurance || '';
+                // Заполняем поле менеджера
+                if (doc.manager) {
+                    // Ищем существующую опцию
+                    const option = managerSelect.querySelector(`option[value="${doc.manager}"]`);
+                    if (option) {
+                        managerSelect.value = doc.manager;
+                    } else {
+                        // Добавляем новую опцию, если менеджера нет в списке
+                        const newOption = document.createElement('option');
+                        newOption.value = doc.manager;
+                        newOption.textContent = doc.manager;
+                        managerSelect.appendChild(newOption);
+                        managerSelect.value = doc.manager;
+                    }
+                } else {
+                    managerSelect.value = ''; // или заглушка
+                }
 
 
-        // Стоимость перевозки
-        document.getElementById('shippingCurrency').value = data.shippingCurrency || '';
+            tbody.innerHTML = '';
+
+            data.nomenclatures.forEach(item => {
+                const newRow = document.createElement('tr');
+                newRow.className = 'item-row';
+
+                // Чекбокс
+                const checkboxCell = document.createElement('td');
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'row-checkbox';
+                checkboxCell.appendChild(checkbox);
+                newRow.appendChild(checkboxCell);
+
+                // Поля номенклатуры
+                ['article', 'tnvedCode', 'invoiceName', 'russianName',
+                 'weight', 'quantity', 'unit', 'vat', 'duty',
+                 'pricePerUnit', 'totalPrice'].forEach(field => {
+                    const cell = document.createElement('td');
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.className = 'input-text';
+                    input.value = item[field];
+                    cell.appendChild(input);
+                    newRow.appendChild(cell);
+                });
+
+                tbody.appendChild(newRow);
+            });
+
+            console.log('Данные загружены:', data);
+        } catch (error) {
+            console.error('Ошибка загрузки:', error.message);
+            alert('Не удалось загрузить документ: ' + error.message);
+        }
     }
 
-    // 5. Заполняем таблицу номенклатуры
-    function fillNomenclatureTable(items) {
-        const tbody = document.getElementById('itemsTbody');
-        tbody.innerHTML = ''; // Очищаем
+    function updateSelectAllState() {
+        const checkboxes = document.querySelectorAll('#itemsTable tbody .row-checkbox');
+        if (checkboxes.length === 0) return;
 
-        items.forEach(item => {
-            const row = document.createElement('tr');
-            row.className = 'item-row';
+        const allChecked = [...checkboxes].every(cb => cb.checked);
+        selectAllCheckbox.checked = allChecked;
+        selectAllCheckbox.indeterminate = !allChecked && [...checkboxes].some(cb => cb.checked);
+    }
 
-            row.innerHTML = `
-                <td><input type="checkbox" class="row-checkbox"></td>
-                <td><input type="text" class="input-text" value="${item.article || ''}" readonly></td>
-                <td><input type="text" class="input-text" value="${item.tnvedCode || ''}" readonly></td>
-                <td><input type="text" class="input-text" value="${item.invoiceName || ''}" readonly></td>
-                <td><input type="text" class="input-text" value="${item.russianName || ''}" readonly></td>
-                <td><input type="number" class="input-text" value="${item.weight != null ? item.weight : ''}" readonly></td>
-                <td><input type="number" class="input-text" value="${item.quantity != null ? item.quantity : ''}" readonly></td>
-                <td><input type="text" class="input-text" value="${item.unit || ''}" readonly></td>
-                <td><input type="text" class="input-text" value="${item.vat || ''}" readonly></td>
-                <td><input type="text" class="input-text" value="${item.duty || ''}" readonly></td>
-                <td><input type="number" class="input-text" value="${item.pricePerUnit != null ? item.pricePerUnit : ''}" readonly></td>
-                <td><input type="number" class="input-text" value="${item.totalPrice != null ? item.totalPrice : ''}" readonly></td>
-            `;
+    function addCheckboxHandler(checkbox) {
+        checkbox.addEventListener('change', updateSelectAllState);
+    }
 
-            tbody.appendChild(row);
+    // Инициализация
+    dateInput.value = formatDate(new Date());
+
+    if (docNumberFromUrl) {
+        loadManagers().then(() => loadDocumentAndNomenclatures(docNumberFromUrl));
+    } else {
+        alert('Номер документа не указан в URL! Используйте ?documentNumber=XXXXXX');
+        loadManagers();
+        fetchDocumentNumber();
+    }
+
+    // Обработчики событий
+    statusSelect.addEventListener('change', () => {
+        console.log('Статус выбран:', statusSelect.value);
+    });
+
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            document.querySelectorAll('#itemsTable tbody .row-checkbox')
+                .forEach(cb => cb.checked = this.checked);
+            updateSelectAllState();
         });
     }
 
-    // 6. Форматируем дату (YYYY-MM-DD)
-    function formatDate(dateStr) {
-        if (!dateStr) return '';
-        const d = new Date(dateStr);
-        return d.toISOString().split('T')[0];
-    }
 
-     //  ЧЕК БОКС
+
+// Кнопка для сохранения
+        document.getElementById('saveBtn').addEventListener('click', async function() {
+            try {
+                // 1. Получаем значение даты из поля формы
+                const dateInputValue = document.getElementById('date').value;
+
+                if (!dateInputValue) {
+                    alert('Укажите дату!');
+                    return;
+                }
+
+                // 2. Формируем createdAt в формате ISO 8601
+                const createdAt = dateInputValue + "T00:00:00";
+
+                // 3. Собираем данные формы
+                const documentData = {
+                    documentNumber: document.getElementById('number').value,
+                    createdAt: createdAt,
+                    status: document.getElementById('status').value,
+                    manager: document.getElementById('manager').value
+                };
+
+                // 4. Собираем номенклатуру из таблицы
+                const nomenclatures = [];
+                const rows = document.querySelectorAll('#itemsTbody .item-row');
+                rows.forEach(row => {
+                    const inputs = row.querySelectorAll('input');
+                    nomenclatures.push({
+                        article: inputs[1].value,
+                        tnvedCode: inputs[2].value,
+                        invoiceName: inputs[3].value,
+                        russianName: inputs[4].value,
+                        weight: parseFloat(inputs[5].value) || null,
+                        quantity: parseInt(inputs[6].value) || null,
+                        unit: inputs[7].value,
+                        vat: inputs[8].value,
+                        duty: inputs[9].value,
+                        pricePerUnit: parseFloat(inputs[10].value) || null,
+                        totalPrice: parseFloat(inputs[11].value) || null
+                    });
+                });
+
+                // 5. Отправляем на сервер (с await!)
+                const response = await fetch('/api/documents/save', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        documentNumber: documentData.documentNumber,
+                        createdAt: documentData.createdAt,
+                        manager: documentData.manager,
+                        status: documentData.status,
+                        nomenclatures: nomenclatures
+                    })
+                });
+
+                // 6. Проверяем ответ
+                if (response.ok) {
+                    alert('Документ сохранён!');
+                } else {
+                    const errorText = await response.text(); // Можно попробовать получить текст ошибки
+                    alert('Ошибка сохранения: ' + (errorText || response.statusText));
+                }
+            } catch (error) {
+                console.error('Ошибка при сохранении:', error);
+                alert('Произошла ошибка: ' + error.message);
+            }
+        });
+
+
+
+
+
+        //  ЧЕК БОКС
         if (selectAllCheckbox) {
             selectAllCheckbox.addEventListener("change", function () {
                 const isChecked = this.checked;
@@ -462,85 +533,22 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
+                                        // СОЗДАНИЕ ЗАЯВКИ
 
+        const createZayavkaBtn = document.getElementById('createZayavkaBtn');
 
-                                // ОБРАБОТКА СОХРАНЕНИЯ ЗАЯВКИ
+        if (createZayavkaBtn) {
+            createZayavkaBtn.addEventListener('click', function() {
+                if (!documentNumber) {
+                    alert('Номер документа не сформирован! Подождите загрузки...');
+                    return;
+                }
 
-    document.getElementById('saveOrder').addEventListener('click', async function() {
-        try {
-            // 1. Получаем значение даты из поля формы
-            const dateInputValue = document.getElementById('date').value;
-
-            if (!dateInputValue) {
-                alert('Укажите дату!');
-                return;
-            }
-
-            // 2. Формируем createdAt в формате ISO 8601
-            // Вариант 1: Начало дня (как в вашем примере)
-            const createdAt = dateInputValue + "T00:00:00";
-
-            // Вариант 2: Текущее время (как new Date().toISOString())
-            // const createdAt = new Date(dateInputValue).toISOString();
-
-            // 3. Собираем данные формы
-            const documentData = {
-                documentNumber: document.getElementById('number').value,
-                createdAt: createdAt,
-                status: document.getElementById('status').value,
-                manager: document.getElementById('manager').value,
-                // Добавьте остальные поля из формы по аналогии
-            };
-
-            // 4. Собираем номенклатуру из таблицы
-            const nomenclatures = [];
-            const rows = document.querySelectorAll('#itemsTbody .item-row');
-            rows.forEach(row => {
-                const inputs = row.querySelectorAll('input');
-                nomenclatures.push({
-                    article: inputs[1].value,
-                    tnvedCode: inputs[2].value,
-                    invoiceName: inputs[3].value,
-                    russianName: inputs[4].value,
-                    weight: parseFloat(inputs[5].value) || null,
-                    quantity: parseInt(inputs[6].value) || null,
-                    unit: inputs[7].value,
-                    vat: inputs[8].value,
-                    duty: inputs[9].value,
-                    pricePerUnit: parseFloat(inputs[10].value) || null,
-                    totalPrice: parseFloat(inputs[11].value) || null
-                });
+                // Переходим на страницу заявки с параметром documentNumber
+                window.location.href = `zayavka.html?documentNumber=${documentNumber}`;
             });
-
-            // 5. Отправляем на сервер
-            const response = await fetch('/api/orders/save', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    document: documentData,
-                    nomenclatures: nomenclatures
-                })
-            });
-
-            if (response.ok) {
-                alert('Документ сохранён!');
-            } else {
-                alert('Ошибка сохранения: ' + response.statusText);
-            }
-        } catch (error) {
-            console.error('Ошибка:', error);
-            alert('Произошла ошибка: ' + error.message);
+        } else {
+            console.warn('Кнопка #createZayavkaBtn не найдена. Проверьте HTML.');
         }
-    });
 
-
-
-
-
-    // Запускаем загрузку
-    loadData();
-    loadManagers();
-    loadActiveOrders();
 });

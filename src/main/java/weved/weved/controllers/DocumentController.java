@@ -2,8 +2,10 @@ package weved.weved.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import weved.weved.dto.DocumentRequest;
 import weved.weved.entity.Document;
 import weved.weved.entity.Nomenclature;
@@ -14,6 +16,7 @@ import weved.weved.service.DocumentService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import static java.util.Collections.singletonMap;
@@ -59,15 +62,35 @@ public class DocumentController {
     @PostMapping("/save")
     public ResponseEntity<?> saveDocument(@RequestBody DocumentRequest request) {
         try {
-            LocalDateTime  createdAt = LocalDateTime .parse(request.getCreatedAt());  // Работает для "2025-12-26"
-            String manager = request.getManager();  // ← Получаем строку "имя фамилия"
-            String status= request.getStatus();
+            LocalDateTime createdAt = LocalDateTime.parse(request.getCreatedAt());
+            String manager = request.getManager();
+            String status = request.getStatus();
 
-            Document saved = documentService.saveDocument(
+            // Преобразуем DTO в сущности Nomenclature
+            List<Nomenclature> nomenclatures = request.getNomenclatures().stream()
+                    .map(dto -> {
+                        Nomenclature n = new Nomenclature();
+                        n.setArticle(dto.getArticle());
+                        n.setTnvedCode(dto.getTnvedCode());
+                        n.setInvoiceName(dto.getInvoiceName());
+                        n.setRussianName(dto.getRussianName());
+                        n.setWeight(dto.getWeight());
+                        n.setQuantity(dto.getQuantity());
+                        n.setUnit(dto.getUnit());
+                        n.setVat(dto.getVat());
+                        n.setDuty(dto.getDuty());
+                        n.setPricePerUnit(dto.getPricePerUnit());
+                        n.setTotalPrice(dto.getTotalPrice());
+                        return n;
+                    })
+                    .toList();
+
+            Document saved = documentService.saveOrUpdateDocument(
                     request.getDocumentNumber(),
                     createdAt,
                     manager,
-                    status
+                    status,
+                    nomenclatures
             );
 
             return ResponseEntity.ok(saved);
@@ -77,6 +100,7 @@ public class DocumentController {
                     .body(singletonMap("error", e.getMessage()));
         }
     }
+
 
     @GetMapping("/documents/{documentNumber}")
     public ResponseEntity<Document> getDocument(@PathVariable String documentNumber) {
@@ -92,4 +116,63 @@ public class DocumentController {
                 ? ResponseEntity.notFound().build()
                 : ResponseEntity.ok(noms);
     }
+
+    @GetMapping("/active")
+    public ResponseEntity<List<Document>> getActiveDocuments() {
+        List<Document> documents = documentRepository.findAll(); // Или фильтруйте по статусу
+        return ResponseEntity.ok(documents);
+    }
+
+    @GetMapping("/{documentNumber}/full")
+    public ResponseEntity<Map<String, Object>> getDocumentWithNomenclatures(@PathVariable String documentNumber) {
+        Document doc = documentRepository.findByDocumentNumber(documentNumber)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Документ не найден"));
+
+        List<Nomenclature> items = nomenclatureRepository.findByDocumentNumber(documentNumber);
+
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("document", doc);
+        response.put("nomenclatures", items);
+
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{documentNumber}")
+    public ResponseEntity<?> updateDocument(
+            @PathVariable String documentNumber,
+            @RequestBody DocumentRequest request
+    ) {
+        try {
+            Document existingDoc = documentRepository.findByDocumentNumber(documentNumber)
+                    .orElseThrow(() -> new ResponseStatusException(
+                            HttpStatus.NOT_FOUND,
+                            "Документ не найден"
+                    ));
+
+            existingDoc.setManager(request.getManager());
+            existingDoc.setStatus(request.getStatus());
+
+            Document updatedDoc = documentRepository.save(existingDoc);
+
+            return ResponseEntity.ok(updatedDoc);
+
+        } catch (ResponseStatusException e) {
+            // Возвращаем JSON с ошибкой
+            Map<String, String> errorBody = Map.of("error", e.getReason());
+            return ResponseEntity
+                    .status(e.getStatusCode())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(errorBody);
+        } catch (Exception e) {
+            // Любая другая ошибка → 500 + JSON
+            Map<String, String> errorBody = Map.of("error", "Внутренняя ошибка сервера: " + e.getMessage());
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(errorBody);
+        }
+    }
+
 }

@@ -16,7 +16,7 @@ public class Document {
     private Long id;
 
     @Column(name = "document_number", nullable = false, length = 6)
-    private String documentNumber; // Исправлено: было 'number'
+    private String documentNumber;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
