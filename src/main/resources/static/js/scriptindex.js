@@ -35,7 +35,7 @@ async function loadActiveOrders() {
                     const documentNumber = order.documentNumber;
                     if (documentNumber) {
                         // 2. Переходим на страницу zayavka с параметром
-                        window.location.href = `zayavka.html?documentNumber=${encodeURIComponent(documentNumber)}`;
+                        window.location.href = `zayavkaView.html?documentNumber=${encodeURIComponent(documentNumber)}`;
                     } else {
                         alert('Не удалось получить номер заявки.');
                     }

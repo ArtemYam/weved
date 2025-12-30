@@ -17,6 +17,40 @@ document.addEventListener('DOMContentLoaded', function() {
     // Отображаем номер в заголовке
     document.getElementById('docNumberDisplay').textContent = documentNumber;
 
+    function loadActiveOrders() {
+        fetch('/api/orders/active')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Полученные заказы:', data);
+                populateOrdersTable(data);
+            })
+            .catch(error => console.error('Ошибка загрузки заказов:', error));
+    }
+
+    function populateOrdersTable(orders) {
+        const tbody = document.getElementById('itemsTbody');
+        tbody.innerHTML = ''; // Очищаем таблицу
+
+        orders.forEach(order => {
+            const row = document.createElement('tr');
+
+            row.innerHTML = `
+                <td><input type="checkbox"></td>
+                <td>${order.documentNumber}</td>
+                <td>${formatDate(order.createdAt)}</td>
+                <td>${order.manager}</td>
+                <td>${order.status}</td>
+            `;
+
+            tbody.appendChild(row);
+        });
+    }
+
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('ru-RU') + ' ' + date.toLocaleTimeString('ru-RU');
+    }
+
     // 1. Загружаем менеджеров
     async function loadManagers() {
         try {
@@ -52,8 +86,8 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             // Запрос: документ + номенклатура
             const [docResponse, nomenResponse] = await Promise.all([
-                fetch(`/api/documents/documents/${documentNumber}`),
-                fetch(`/api/documents/nomenclatures/${documentNumber}`)
+                fetch(`/api/orders/header/${documentNumber}`),          // ← Новый URL
+                fetch(`/api/orders/items/${documentNumber}`)           // ← Новый URL
             ]);
 
             if (!docResponse.ok || !nomenResponse.ok) {
@@ -72,6 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('Не удалось загрузить данные: ' + error.message);
         }
     }
+
 
     // 4. Заполняем поля формы
     function fillFormFields(data) {
@@ -507,4 +542,5 @@ document.addEventListener('DOMContentLoaded', function() {
     // Запускаем загрузку
     loadData();
     loadManagers();
+    loadActiveOrders();
 });
